@@ -1,4 +1,4 @@
-#include "mocks/sensory_readings.hpp"
+#include "mocks/sensor_readings.hpp"
 #include <algorithm>
 #include <string>
 #include <vector>

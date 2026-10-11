@@ -1,64 +1,57 @@
-#include "mocks/sensory_readings.hpp"
+#include "DatabaseManager/DatabaseManager.hpp"
 #include <iostream>
 #include <sqlite3.h>
 
-class DatabaseManager
+DatabaseManager::DatabaseManager(const char* db_path)
 {
-private:
-    sqlite3* db;
-
-public:
-    DatabaseManager(const char* db_path)
+    if(sqlite3_open(db_path, &db) != SQLITE_OK)
     {
-        if(sqlite3_open(db_path, &db) != SQLITE_OK)
-        {
-            std::cerr << "[ERROR] Cannot open database: " << sqlite3_errmsg(db) << '\n';
-            sqlite3_close(db); 
-        } 
-        else 
-        {
-            std::cout << "[OK] Connected with database.\n";
-        }
+        Logger::getInstance().log(CRITICAL, "Cannot open/create database!\n");
+        sqlite3_close(db); 
+    } 
+    else 
+    {
+        Logger::getInstance().log(INFO, "Connected with database.\n");
     }
+}
     
-    ~DatabaseManager() 
+DatabaseManager::~DatabaseManager() 
+{
+    if(db) 
     {
-        if(db) 
+        sqlite3_close(db);
+        Logger::getInstance().log(INFO, "Closed connection with database.\n");
+    }
+}
+
+void DatabaseManager::insertMockReadings()
+{
+    std::vector<std::vector<SensorReading>> sensorData = prepareMockReadings();
+    char* errorMessage = nullptr;
+    sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &errorMessage);
+
+    // query prep
+    const char* sql = "INSERT INTO sensor_readings (telemetry_run_id, sensor_id, recorded_at, value) VALUES (?, ?, ?, ?);";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    for (const auto& data : sensorData)
+    {
+        for (const auto& reading : data)
         {
-            sqlite3_close(db);
-            std::cout << "[OK] Closed connection with database.\n";
+            // vector values --> sql vars
+            sqlite3_bind_int(stmt, 1, reading.runId);
+            sqlite3_bind_int(stmt, 2, reading.sensorId);
+            sqlite3_bind_text(stmt, 3, reading.recordedAt.c_str(), -1, SQLITE_TRANSIENT); 
+            sqlite3_bind_double(stmt, 4, reading.value);
+
+            // insert to RAM
+            sqlite3_step(stmt);
+
+            // reset before another reading
+            sqlite3_reset(stmt);
         }
     }
-
-    void insertMockReadings()
-    {
-        std::vector<std::vector<SensorReading>> sensorData = prepareMockReadings();
-        char* errorMessage = nullptr;
-        sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &errorMessage);
-
-        // query prep
-        const char* sql = "INSERT INTO sensor_readings (telemetry_run_id, sensor_id, recorded_at, value) VALUES (?, ?, ?, ?);";
-        sqlite3_stmt* stmt;
-        sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-
-        for (const auto& data : sensorData)
-        {
-            for (const auto& reading : data)
-            {
-                // vector values --> sql vars
-                sqlite3_bind_int(stmt, 1, reading.runId);
-                sqlite3_bind_int(stmt, 2, reading.sensorId);
-                sqlite3_bind_text(stmt, 3, reading.recordedAt.c_str(), -1, SQLITE_TRANSIENT); 
-                sqlite3_bind_double(stmt, 4, reading.value);
-
-                // insert to RAM
-                sqlite3_step(stmt);
-
-                // reset before another reading
-                sqlite3_reset(stmt);
-            }
-        }
-        sqlite3_finalize(stmt);
-        sqlite3_exec(db, "COMMIT;", nullptr, nullptr, &errorMessage);
-    }
-};
+    sqlite3_finalize(stmt);
+    sqlite3_exec(db, "COMMIT;", nullptr, nullptr, &errorMessage);
+}
