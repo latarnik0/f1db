@@ -1,5 +1,5 @@
 #pragma once
-#include "mocks/sensor_readings.hpp"
+#include "Mocks/sensor_readings.hpp"
 #include "Logger/Logger.hpp"
 #include <iostream>
 #include <sqlite3.h>

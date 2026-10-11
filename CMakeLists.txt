@@ -7,13 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable(f1db
     src/main.cpp
     src/DatabaseManager/DatabaseManager.cpp
-    src/mocks/sensor_readings.cpp
+    src/Mocks/sensor_readings.cpp
 )
 
 target_include_directories(f1db PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DatabaseManager
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Mocks
 )
 
 target_link_libraries(f1db sqlite3)
