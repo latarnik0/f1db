@@ -24,6 +24,11 @@ DatabaseManager::~DatabaseManager()
     }
 }
 
+sqlite3* DatabaseManager::getConnection(sqlite3* db)
+{
+    return db;
+}
+
 void DatabaseManager::insertMockReadings()
 {
     std::vector<std::vector<SensorReading>> sensorData = prepareMockReadings();
