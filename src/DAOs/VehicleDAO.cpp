@@ -1,7 +1,7 @@
 #include "DAOs/VehicleDAO.hpp"
 #include "QueryHandler/QueryHandler.hpp"
 
-VehicleDAO::VehicleDAO()
+VehicleDAO::VehicleDAO(sqlite3* db)
 {
 
 }

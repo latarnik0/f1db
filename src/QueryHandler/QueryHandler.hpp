@@ -1,7 +1,7 @@
 #pragma once
 #include "Mocks/sensor_readings.hpp"
 #include "Logger/Logger.hpp"
-#include "DAOs/Inventory.hpp"
+#include "DAOs/InventoryDAO.hpp"
 #include "DAOs/PersonnelDAO.hpp"
 #include "DAOs/SessionDAO.hpp"
 #include "DAOs/TelemetryDAO.hpp"
