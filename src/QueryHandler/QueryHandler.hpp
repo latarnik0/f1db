@@ -5,15 +5,22 @@
 #include "DAOs/PersonnelDAO.hpp"
 #include "DAOs/SessionDAO.hpp"
 #include "DAOs/TelemetryDAO.hpp"
+#include "DAOs/VehicleDAO.hpp"
 #include <iostream>
 #include <sqlite3.h>
 
 class QueryHandler
 {
 private:
-    //Telemetry telemetry;
-    //Driver drivers;
+    InventoryDAO inventory;
+    PersonnelDAO personnel;
+    SessionDAO session;
+    TelemetryDAO telemetry;
+    VehicleDAO vehicle;
+
 public:
+    QueryHandler(sqlite3* db) : inventory(db), personnel(db), session(db), telemetry(db), vehicle(db) {}
+
     QueryHandler(sqlite3* db);
     ~QueryHandler();
 };
