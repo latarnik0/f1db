@@ -12,6 +12,5 @@ private:
 public:
     DatabaseManager(const char* db_path);
     ~DatabaseManager();
-
     void insertMockReadings();
 };
