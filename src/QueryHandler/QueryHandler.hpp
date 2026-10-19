@@ -19,8 +19,6 @@ private:
     VehicleDAO vehicle;
 
 public:
-    QueryHandler(sqlite3* db) : inventory(db), personnel(db), session(db), telemetry(db), vehicle(db) {}
-
-    QueryHandler(sqlite3* db);
+    QueryHandler(sqlite3* db_connection);
     ~QueryHandler();
 };

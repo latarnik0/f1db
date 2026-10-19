@@ -1,7 +1,6 @@
-#include "DAOs/InventoryDAO.hpp"
-#include "QueryHandler/QueryHandler.hpp"
+#include "InventoryDAO.hpp"
 
-InventoryDAO::InventoryDAO(sqlite3* db)
+InventoryDAO::InventoryDAO(sqlite3* db_connection) : db(db_connection)
 {
 
 }

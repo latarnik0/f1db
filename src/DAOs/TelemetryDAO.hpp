@@ -1,5 +1,5 @@
 #pragma once
-#include "QueryHandler/QueryHandler.hpp"
+#include <sqlite3.h> 
 
 class TelemetryDAO
 {
@@ -7,6 +7,6 @@ private:
     sqlite3* db;
 
 public:
-    TelemetryDAO(sqlite3* db);
+    TelemetryDAO(sqlite3* db_connection);
     ~TelemetryDAO();
 };

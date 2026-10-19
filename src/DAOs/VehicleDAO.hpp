@@ -1,5 +1,5 @@
 #pragma once
-#include "QueryHandler/QueryHandler.hpp"
+#include <sqlite3.h> 
 
 class VehicleDAO
 {
@@ -7,6 +7,6 @@ private:
     sqlite3* db;
 
 public:
-    VehicleDAO(sqlite3* db);
+    VehicleDAO(sqlite3* db_connection);
     ~VehicleDAO();
 };

@@ -1,5 +1,5 @@
 #pragma once
-#include "QueryHandler/QueryHandler.hpp"
+#include <sqlite3.h> 
 
 class InventoryDAO
 {
@@ -7,6 +7,6 @@ private:
     sqlite3* db;
 
 public:
-    InventoryDAO(sqlite3* db);
+    InventoryDAO(sqlite3* db_connection);
     ~InventoryDAO();
 };
