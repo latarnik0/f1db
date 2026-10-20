@@ -10,3 +10,8 @@ SessionDAO::~SessionDAO()
 {
     
 }
+
+void SessionDAO::addTrack(const std::string& name, const int& length)
+{
+
+}

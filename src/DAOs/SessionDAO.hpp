@@ -9,4 +9,6 @@ private:
 public:
     SessionDAO(sqlite3* db_connection);
     ~SessionDAO();
+
+    void addTrack(const std::string& name, const int& length);
 };
