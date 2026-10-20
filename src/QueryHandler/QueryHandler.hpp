@@ -1,5 +1,4 @@
 #pragma once
-#include "Mocks/sensor_readings.hpp"
 #include "Logger/Logger.hpp"
 #include "DAOs/InventoryDAO.hpp"
 #include "DAOs/PersonnelDAO.hpp"

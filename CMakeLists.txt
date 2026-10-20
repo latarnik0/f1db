@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable(f1db
     src/main.cpp
     src/DatabaseManager/DatabaseManager.cpp
-    src/Mocks/sensor_readings.cpp
+    src/Mocks/MockReadings.cpp
 )
 
 target_include_directories(f1db PRIVATE

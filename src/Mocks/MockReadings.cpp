@@ -1,4 +1,4 @@
-#include "Mocks/sensor_readings.hpp"
+#include "Mocks/MockReadings.hpp"
 #include <algorithm>
 #include <string>
 #include <vector>
