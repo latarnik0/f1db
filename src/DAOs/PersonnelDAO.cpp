@@ -12,10 +12,11 @@ PersonnelDAO::~PersonnelDAO()
     
 }
 
-void PersonnelDAO::addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl)
+int PersonnelDAO::addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl)
 {
     const char* sql = "INSERT INTO drivers (first_name, last_name, experience_lvl) VALUES (?, ?, ?);";
     sqlite3_stmt* stmt;
+    int newId = -1;
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
     {
@@ -23,14 +24,20 @@ void PersonnelDAO::addDriver(const std::string& firstName, const std::string& la
         sqlite3_bind_text(stmt, 2, lastName.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 3, experienceLvl);
         sqlite3_step(stmt);
+        if (sqlite3_step(stmt) == SQLITE_DONE) 
+        {
+            newId = sqlite3_last_insert_rowid(db);
+        }
     }
     sqlite3_finalize(stmt);
+    return newId;
 }
 
-void PersonnelDAO::addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division)
+int PersonnelDAO::addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division)
 {
     const char* sql = "INSERT INTO engineers (first_name, last_name, division) VALUES (?, ?, ?);";
     sqlite3_stmt* stmt;
+    int newId = -1;
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
     {
@@ -38,7 +45,12 @@ void PersonnelDAO::addEngineer(const std::string& firstName, const std::string& 
         sqlite3_bind_text(stmt, 2, lastName.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 3, division.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_step(stmt);
+        if (sqlite3_step(stmt) == SQLITE_DONE) 
+        {
+            newId = sqlite3_last_insert_rowid(db);
+        }
     }
     sqlite3_finalize(stmt);
+    return newId;
 }
 

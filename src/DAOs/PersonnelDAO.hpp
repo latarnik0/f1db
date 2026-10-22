@@ -11,6 +11,6 @@ public:
     PersonnelDAO(sqlite3* db_connection);
     ~PersonnelDAO();
 
-    void addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl);
-    void addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division);
+    int addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl);
+    int addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division);
 };

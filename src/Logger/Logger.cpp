@@ -1,4 +1,3 @@
-#pragma once
 #include "Logger/Logger.hpp" 
 
 Logger::Logger(const std::string& filename)

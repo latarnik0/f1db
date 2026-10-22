@@ -20,4 +20,11 @@ private:
 public:
     QueryHandler(sqlite3* db_connection);
     ~QueryHandler();
+
+    // PersonnelDAO
+    int addDriver(const std::string& firstName, const std::string& lastName, int experienceLvl);
+    int addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division);
+
+    // InventoryDAO
+    int addPart(const std::string& partName, const std::string& partType);
 };

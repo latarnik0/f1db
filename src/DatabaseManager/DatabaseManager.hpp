@@ -11,5 +11,5 @@ private:
 public:
     DatabaseManager(const char* db_path);
     ~DatabaseManager();
-    sqlite3* getConnection(sqlite3* db);
+    sqlite3* getConnection();
 };

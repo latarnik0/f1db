@@ -17,3 +17,20 @@ QueryHandler::~QueryHandler()
 {
     
 }
+
+// PersonnelDAO
+int QueryHandler::addDriver(const std::string& firstName, const std::string& lastName, int experienceLvl)
+{
+    return personnel.addDriver(firstName, lastName, experienceLvl);
+}
+
+int QueryHandler::addEngineer(const std::string& firstName, const std::string& lastName, const std::string& divsion)
+{
+    return personnel.addEngineer(firstName, lastName, divsion);
+}
+
+// InventoryDAO
+int QueryHandler::addPart(const std::string& partName, const std::string& partType)
+{
+    return inventory.addPart(partName, partType);
+}

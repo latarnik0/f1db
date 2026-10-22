@@ -24,16 +24,11 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<SensorReading>>& sensorDa
     {
         for(const auto& reading : data)
         {
-            // vector values --> sql vars
             sqlite3_bind_int(stmt, 1, reading.runId);
             sqlite3_bind_int(stmt, 2, reading.sensorId);
             sqlite3_bind_text(stmt, 3, reading.recordedAt.c_str(), -1, SQLITE_TRANSIENT); 
             sqlite3_bind_double(stmt, 4, reading.value);
-
-            // insert to RAM
             sqlite3_step(stmt);
-
-            // reset before another reading
             sqlite3_reset(stmt);
         }
     }

@@ -24,7 +24,7 @@ DatabaseManager::~DatabaseManager()
     }
 }
 
-sqlite3* DatabaseManager::getConnection(sqlite3* db)
+sqlite3* DatabaseManager::getConnection()
 {
     return db;
 }
