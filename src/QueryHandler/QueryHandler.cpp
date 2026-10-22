@@ -1,6 +1,8 @@
 #include "DatabaseManager/DatabaseManager.hpp"
 #include "QueryHandler/QueryHandler.hpp"
+#include "Mocks/MockReadings.hpp"
 #include <iostream>
+#include <vector>
 #include <sqlite3.h>
 
 QueryHandler::QueryHandler(sqlite3* db_connection) : 
@@ -34,3 +36,12 @@ int QueryHandler::addPart(const std::string& partName, const std::string& partTy
 {
     return inventory.addPart(partName, partType);
 }
+
+// TelemetryDAO
+void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData)
+{
+    return telemetry.insertBatch(sensorData);
+}
+
+// SessionDAO
+// VehicleDAO

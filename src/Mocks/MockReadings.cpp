@@ -3,7 +3,17 @@
 #include <string>
 #include <vector>
 
-std::vector<SensorReading> generateMockReadings(int sensorId, double minVal, double maxVal, int numberOfReadings)
+MockReadings::MockReadings()
+{
+
+}
+
+MockReadings::~MockReadings()
+{
+
+}
+
+std::vector<SensorReading> MockReadings::generateMockReadings(int sensorId, double minVal, double maxVal, int numberOfReadings)
 {
     std::vector<SensorReading> readings;
     readings.reserve(numberOfReadings);
@@ -20,7 +30,7 @@ std::vector<SensorReading> generateMockReadings(int sensorId, double minVal, dou
     return readings;
 }
 
-std::vector<std::vector<SensorReading>> prepareMockReadings()
+std::vector<std::vector<SensorReading>> MockReadings::prepareMockReadings()
 {
     std::vector<std::vector<SensorReading>> result = {};
     result.reserve(4);

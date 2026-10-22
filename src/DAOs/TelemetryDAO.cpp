@@ -16,7 +16,7 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<SensorReading>>& sensorDa
     char* errorMessage = nullptr;
     sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &errorMessage);
 
-    const char* sql = "INSERT INTO sensor_readings (telemetry_run_id, sensor_id, recorded_at, value) VALUES (?, ?, ?, ?);";
+    const char* sql = "INSERT INTO sensor_readings (run_id, sensor_id, recorded_at, value) VALUES (?, ?, ?, ?);";
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
 

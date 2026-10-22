@@ -27,4 +27,11 @@ public:
 
     // InventoryDAO
     int addPart(const std::string& partName, const std::string& partType);
+
+    // SessionDAO
+
+    // TelemetryDAO
+    void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
+
+    // VehicleDAO
 };
