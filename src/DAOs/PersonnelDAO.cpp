@@ -44,8 +44,7 @@ int PersonnelDAO::addEngineer(const std::string& firstName, const std::string& l
         sqlite3_bind_text(stmt, 1, firstName.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, lastName.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 3, division.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_step(stmt);
-        if (sqlite3_step(stmt) == SQLITE_DONE) 
+        if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
         }

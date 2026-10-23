@@ -1,4 +1,5 @@
 #pragma once
+#include "Models/Models.hpp"
 #include "Logger/Logger.hpp"
 #include "DAOs/InventoryDAO.hpp"
 #include "DAOs/PersonnelDAO.hpp"
@@ -26,7 +27,11 @@ public:
     int addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division);
 
     // InventoryDAO
-    int addPart(const std::string& partName, const std::string& partType);
+    int addPart(const std::string& partName, const std::string& category);
+    bool deletePart(const int& partId);
+    Part getPartById(const int& partId);
+
+
 
     // SessionDAO
 
