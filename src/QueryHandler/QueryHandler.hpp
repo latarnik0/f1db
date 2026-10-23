@@ -22,11 +22,9 @@ public:
     QueryHandler(sqlite3* db_connection);
     ~QueryHandler();
 
-    // PersonnelDAO
-    int addDriver(const std::string& firstName, const std::string& lastName, int experienceLvl);
-    int addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division);
-
+    // =================
     // InventoryDAO
+    // =================
     int addPart(const std::string& partName, const std::string& category);
     bool deletePart(const int& partId);
     Part getPartById(const int& partId);
@@ -34,12 +32,36 @@ public:
     std::vector<Part> getPartByCategory(const std::string& category);
     std::vector<Part> getAllParts();
 
+    // =================
+    // PersonnelDAO
+    // =================
+    // Drivers
+    int addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl);
+    bool deleteDriver(const int& driverId);
+    Driver getDriverById(const int& driverId);
+    std::vector<Driver> getAllDrivers();
+    std::vector<Driver> getDriverByLastName(const std::string& lastName);
+    std::vector<Driver> getDriverByExpLvl(const int& experienceLvl);
+    bool updateDriverExperience(const int& driverId, const int& newLvl);
 
+    // Engineers
+    int addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division);
+    bool deleteEngineer(const int& engineerId);
+    Engineer getEngineerById(const int& engineerId);
+    std::vector<Engineer> getAllEngineers();
+    std::vector<Engineer> getEngineerByLastName(const std::string& lastName);
+    std::vector<Engineer> getEngineerByDivision(const std::string& division);
 
-    // SessionDAO
-
+    // =================
     // TelemetryDAO
+    // =================
     void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
 
+    // =================
+    // SessionDAO
+    // =================
+
+    // =================
     // VehicleDAO
+    // =================
 };

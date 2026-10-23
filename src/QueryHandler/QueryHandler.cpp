@@ -14,16 +14,6 @@ QueryHandler::QueryHandler(sqlite3* db_connection) :
 
 QueryHandler::~QueryHandler(){}
 
-// PersonnelDAO
-int QueryHandler::addDriver(const std::string& firstName, const std::string& lastName, int experienceLvl)
-{
-    return personnel.addDriver(firstName, lastName, experienceLvl);
-}
-
-int QueryHandler::addEngineer(const std::string& firstName, const std::string& lastName, const std::string& divsion)
-{
-    return personnel.addEngineer(firstName, lastName, divsion);
-}
 
 // =======================
 // InventoryDAO
@@ -58,6 +48,78 @@ std::vector<Part> QueryHandler::getAllParts()
     return inventory.getAllParts();
 }
 
+
+// =======================
+// PersonnelDAO
+// =======================
+// Drivers
+int QueryHandler::addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl)
+{
+    return personnel.addDriver(firstName, lastName, experienceLvl);
+}
+
+bool QueryHandler::deleteDriver(const int& driverId)
+{
+    return personnel.deleteDriver(driverId);
+}
+
+bool QueryHandler::updateDriverExperience(const int& driverId, const int& newLvl)
+{
+    return personnel.updateDriverExperience(driverId, newLvl);
+}
+
+Driver QueryHandler::getDriverById(const int& driverId)
+{
+    return personnel.getDriverById(driverId);
+}
+
+std::vector<Driver> QueryHandler::getAllDrivers()
+{
+    return personnel.getAllDrivers();
+}
+
+std::vector<Driver> QueryHandler::getDriverByLastName(const std::string& lastName)
+{
+    return personnel.getDriverByLastName(lastName);
+}
+
+std::vector<Driver> QueryHandler::getDriverByExpLvl(const int& experienceLvl)
+{
+    return personnel.getDriverByExpLvl(experienceLvl);
+}
+
+// Engineers
+int QueryHandler::addEngineer(const std::string& firstName, const std::string& lastName, const std::string& divsion)
+{
+    return personnel.addEngineer(firstName, lastName, divsion);
+}
+
+bool QueryHandler::deleteEngineer(const int& engineerId)
+{
+    return personnel.deleteEngineer(engineerId);
+}
+
+Engineer QueryHandler::getEngineerById(const int& engineerId)
+{
+    return personnel.getEngineerById(engineerId);
+}
+
+std::vector<Engineer> QueryHandler::getAllEngineers()
+{
+    return personnel.getAllEngineers();
+}
+
+std::vector<Engineer> QueryHandler::getEngineerByLastName(const std::string& lastName)
+{
+    return personnel.getEngineerByLastName(lastName);
+}
+
+std::vector<Engineer> QueryHandler::getEngineerByDivision(const std::string& division)
+{
+    return personnel.getEngineerByDivision(division);
+}
+
+
 // =======================
 // TelemetryDAO
 // =======================
@@ -66,5 +128,12 @@ void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& s
     return telemetry.insertBatch(sensorData);
 }
 
+
+// =======================
 // SessionDAO
+// =======================
+
+
+// =======================
 // VehicleDAO
+// =======================
