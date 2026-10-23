@@ -43,6 +43,20 @@ Part QueryHandler::getPartById(const int& partId)
     return inventory.getPartById(partId);
 }
 
+std::vector<Part> QueryHandler::getPartByPartName(const std::string& partName)
+{
+    return inventory.getPartByPartName(partName);
+}
+
+std::vector<Part> QueryHandler::getPartByCategory(const std::string& category)
+{
+    return inventory.getPartByCategory(category);
+}
+
+std::vector<Part> QueryHandler::getAllParts()
+{
+    return inventory.getAllParts();
+}
 
 // =======================
 // TelemetryDAO
