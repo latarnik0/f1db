@@ -18,5 +18,5 @@ public:
     Part getPartById(const int& partId);
     std::vector<Part> getPartByPartName(const std::string& partName);
     std::vector<Part> getPartByCategory(const std::string& category);
-
+    std::vector<Part> getAllParts();
 };

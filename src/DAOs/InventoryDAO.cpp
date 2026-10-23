@@ -18,6 +18,7 @@ int InventoryDAO::addPart(const std::string& partName, const std::string& catego
         if (sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "Entry added");
         }
     }
     else
@@ -37,14 +38,18 @@ bool InventoryDAO::deletePart(const int& partId)
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, partId);
-        sqlite3_step(stmt);
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             if(sqlite3_changes(db) > 0) 
             {
                 result = true;
+                Logger::getInstance().log(INFO, "Entry deleted");
             }
         }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
     return result;
@@ -52,18 +57,25 @@ bool InventoryDAO::deletePart(const int& partId)
 
 Part InventoryDAO::getPartById(const int& partId)
 {
-    const char* sql = "SELECT FROM parts_inventory WHERE part_id = ?;";
+    const char* sql = "SELECT * FROM parts_inventory WHERE part_id = ?;";
     sqlite3_stmt* stmt;
     Part p = {};
-
+    
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, partId);
-        sqlite3_step(stmt);
-        if(sqlite3_step(stmt) == SQLITE_DONE) 
+        if(sqlite3_step(stmt) == SQLITE_ROW) 
         {
-            Logger::getInstance().log(INFO, "Success");
+            p.id = sqlite3_column_int(stmt, 0);
+            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            sqlite3_finalize(stmt);
+            return p;
         }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
     return p;
@@ -71,38 +83,77 @@ Part InventoryDAO::getPartById(const int& partId)
 
 std::vector<Part> InventoryDAO::getPartByPartName(const std::string& partName)
 {
-    const char* sql = "SELECT FROM parts_inventory WHERE part_name = ?;";
+    const char* sql = "SELECT * FROM parts_inventory WHERE part_name = ?;";
     sqlite3_stmt* stmt;
-    std::vector<Part> p = {};
+    std::vector<Part> partsList = {};
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_text(stmt, 1, partName.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_step(stmt);
-        if(sqlite3_step(stmt) == SQLITE_DONE) 
+        while(sqlite3_step(stmt) == SQLITE_ROW) 
         {
-            Logger::getInstance().log(INFO, "Success");
+            Part p;
+            p.id = sqlite3_column_int(stmt, 0);
+            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            partsList.push_back(p);
         }
     }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
     sqlite3_finalize(stmt);
-    return p;
+    return partsList;
 }
 
 std::vector<Part> InventoryDAO::getPartByCategory(const std::string& category)
 {
-    const char* sql = "SELECT FROM parts_inventory WHERE category = ?;";
+    const char* sql = "SELECT * FROM parts_inventory WHERE category = ?;";
     sqlite3_stmt* stmt;
-    std::vector<Part> p = {};
+    std::vector<Part> partsList = {};
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_text(stmt, 1, category.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_step(stmt);
-        if(sqlite3_step(stmt) == SQLITE_DONE) 
+        while(sqlite3_step(stmt) == SQLITE_ROW) 
         {
-            Logger::getInstance().log(INFO, "Success");
+            Part p;
+            p.id = sqlite3_column_int(stmt, 0);
+            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            partsList.push_back(p);
         }
     }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
     sqlite3_finalize(stmt);
-    return p;
+    return partsList;
+}
+
+std::vector<Part> InventoryDAO::getAllParts()
+{
+    const char* sql = "SELECT part_id, part_name, category FROM parts_inventory;";
+    sqlite3_stmt* stmt;
+    std::vector<Part> partsList;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        while(sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            Part p;
+            p.id = sqlite3_column_int(stmt, 0);
+            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            partsList.push_back(p);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return partsList;
 }
