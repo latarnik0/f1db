@@ -51,6 +51,7 @@ public:
     std::vector<Engineer> getAllEngineers();
     std::vector<Engineer> getEngineerByLastName(const std::string& lastName);
     std::vector<Engineer> getEngineerByDivision(const std::string& division);
+    
 
     // =====================================================================
     //                             TelemetryDAO
@@ -60,6 +61,12 @@ public:
     int startTelemetryRun(int sessionId, int vehicleId, int driverId);
     bool assignEngineerToRun(int runId, int engineerId);
     void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
+
+    // analytical data
+    RunDetails getRunDetails(int runId);
+    std::vector<Engineer> getEngineersForRun(int runId);
+    std::vector<SensorReading> getRunTelemetry(int runId, int sensorId);
+    SensorStatistics getSensorStatistics(int runId, int sensorId);
 
 
     // =====================================================================

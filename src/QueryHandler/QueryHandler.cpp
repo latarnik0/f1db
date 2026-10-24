@@ -148,6 +148,27 @@ void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& s
     return telemetry.insertBatch(sensorData);
 }
 
+// analytical data
+RunDetails QueryHandler::getRunDetails(int runId)
+{
+    return telemetry.getRunDetails(runId);
+}
+
+std::vector<Engineer> QueryHandler::getEngineersForRun(int runId)
+{
+    return telemetry.getEngineersForRun(runId);
+}
+
+std::vector<SensorReading> QueryHandler::getRunTelemetry(int runId, int sensorId)
+{
+    return telemetry.getRunTelemetry(runId, sensorId);
+}
+
+SensorStatistics QueryHandler::getSensorStatistics(int runId, int sensorId)
+{
+    return telemetry.getSensorStatistics(runId, sensorId);
+}
+
 
 // =====================================================================
 //                             SessionDAO

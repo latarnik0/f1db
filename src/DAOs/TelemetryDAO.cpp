@@ -128,3 +128,137 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<SensorReading>>& sensorDa
     sqlite3_finalize(stmt);
     sqlite3_exec(db, "COMMIT;", nullptr, nullptr, &errorMessage);
 }
+
+RunDetails TelemetryDAO::getRunDetails(int runId)
+{
+    // JOIN łączący 4 tabele: telemetry_runs, race_sessions, vehicles, drivers
+    const char* sql = 
+        "SELECT tr.run_id, rs.session_date, v.chassis_code, d.first_name, d.last_name "
+        "FROM telemetry_runs tr "
+        "JOIN race_sessions rs ON tr.session_id = rs.session_id "
+        "JOIN vehicles v ON tr.vehicle_id = v.vehicle_id "
+        "JOIN drivers d ON tr.driver_id = d.driver_id "
+        "WHERE tr.run_id = ?;";
+        
+    sqlite3_stmt* stmt;
+    RunDetails rd;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_int(stmt, 1, runId);
+
+        if(sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            rd.runId = sqlite3_column_int(stmt, 0);
+            rd.sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            rd.chassisCode = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            rd.driverFirstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            rd.driverLastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));  
+            sqlite3_finalize(stmt);
+            return rd;
+        }
+    }
+    else 
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return rd;
+}
+
+std::vector<Engineer> TelemetryDAO::getEngineersForRun(int runId)
+{
+    const char* sql = 
+        "SELECT e.engineer_id, e.first_name, e.last_name, e.division "
+        "FROM engineers e "
+        "JOIN run_engineers re ON e.engineer_id = re.engineer_id "
+        "WHERE re.run_id = ?;";
+        
+    sqlite3_stmt* stmt;
+    std::vector<Engineer> engineersList;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_int(stmt, 1, runId);
+
+        while(sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            Engineer e;
+            e.id = sqlite3_column_int(stmt, 0);
+            e.firstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            e.lastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            e.division = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            engineersList.push_back(e);
+        }
+    }
+    else 
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return engineersList;
+}
+
+std::vector<SensorReading> TelemetryDAO::getRunTelemetry(int runId, int sensorId)
+{
+    const char* sql = "SELECT recorded_at, value FROM sensor_readings WHERE run_id = ? AND sensor_id = ? ORDER BY recorded_at ASC;";
+    sqlite3_stmt* stmt;
+    std::vector<SensorReading> readings;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_int(stmt, 1, runId);
+        sqlite3_bind_int(stmt, 2, sensorId);
+
+        while(sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            SensorReading sr;
+            sr.runId = runId;       
+            sr.sensorId = sensorId; 
+            sr.recordedAt = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            sr.value = sqlite3_column_double(stmt, 1);
+            readings.push_back(sr);
+        }
+    }
+    else 
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return readings;
+}
+
+SensorStatistics TelemetryDAO::getSensorStatistics(int runId, int sensorId)
+{
+    const char* sql = 
+        "SELECT MAX(value), MIN(value), AVG(value) "
+        "FROM sensor_readings "
+        "WHERE run_id = ? AND sensor_id = ? "
+        "GROUP BY run_id, sensor_id;";
+        
+    sqlite3_stmt* stmt;
+    SensorStatistics stats;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_int(stmt, 1, runId);
+        sqlite3_bind_int(stmt, 2, sensorId);
+
+        if(sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            stats.runId = runId;
+            stats.sensorId = sensorId;
+            stats.maxValue = sqlite3_column_double(stmt, 0);
+            stats.minValue = sqlite3_column_double(stmt, 1);
+            stats.avgValue = sqlite3_column_double(stmt, 2);
+            sqlite3_finalize(stmt);
+            return stats;
+        }
+    }
+    else 
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return stats;
+}

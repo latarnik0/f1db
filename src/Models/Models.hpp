@@ -116,3 +116,21 @@ struct SessionDetails
     std::string trackName;
     double trackLengthKm;
 };
+
+struct RunDetails
+{
+    int runId;
+    std::string sessionDate;
+    std::string chassisCode;
+    std::string driverFirstName;
+    std::string driverLastName;
+};
+
+struct SensorStatistics
+{
+    int runId;
+    int sensorId;
+    double maxValue;
+    double minValue;
+    double avgValue;
+};

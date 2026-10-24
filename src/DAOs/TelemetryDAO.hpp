@@ -17,4 +17,9 @@ public:
     int startTelemetryRun(int sessionId, int vehicleId, int driverId);
     bool assignEngineerToRun(int runId, int engineerId);
     void insertBatch(std::vector<std::vector<SensorReading>>& sensorData);
+    // analytical data
+    RunDetails getRunDetails(int runId);
+    std::vector<Engineer> getEngineersForRun(int runId);
+    std::vector<SensorReading> getRunTelemetry(int runId, int sensorId);
+    SensorStatistics getSensorStatistics(int runId, int sensorId);
 };
