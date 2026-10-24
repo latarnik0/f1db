@@ -15,9 +15,9 @@ QueryHandler::QueryHandler(sqlite3* db_connection) :
 QueryHandler::~QueryHandler(){}
 
 
-// =======================
-// InventoryDAO
-// =======================
+// =====================================================================
+//                             InventoryDAO
+// =====================================================================
 int QueryHandler::addPart(const std::string& partName, const std::string& category)
 {
     return inventory.addPart(partName, category);
@@ -49,9 +49,9 @@ std::vector<Part> QueryHandler::getAllParts()
 }
 
 
-// =======================
-// PersonnelDAO
-// =======================
+// =====================================================================
+//                             PersonnelDAO
+// =====================================================================
 // Drivers
 int QueryHandler::addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl)
 {
@@ -120,18 +120,38 @@ std::vector<Engineer> QueryHandler::getEngineerByDivision(const std::string& div
 }
 
 
-// =======================
-// TelemetryDAO
-// =======================
+// =====================================================================
+//                             TelemetryDAO
+// =====================================================================
+int QueryHandler::addSensor(const std::string& name, const std::string& unit)
+{
+    return telemetry.addSensor(name, unit);
+}
+
+std::vector<Sensor> QueryHandler::getAllSensors()
+{
+    return telemetry.getAllSensors();
+}
+
+int QueryHandler::startTelemetryRun(int sessionId, int vehicleId, int driverId)
+{
+    return telemetry.startTelemetryRun(sessionId, vehicleId, driverId);
+}
+
+bool QueryHandler::assignEngineerToRun(int runId, int engineerId)
+{
+    return telemetry.assignEngineerToRun(runId, engineerId);
+}
+
 void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData)
 {
     return telemetry.insertBatch(sensorData);
 }
 
 
-// =======================
-// SessionDAO
-// =======================
+// =====================================================================
+//                             SessionDAO
+// =====================================================================
 int QueryHandler::addTrack(const std::string& name, double lengthKm)
 {
     return session.addTrack(name, lengthKm);
@@ -163,9 +183,9 @@ SessionDetails QueryHandler::getSessionDetails(int sessionId)
 }
 
 
-// =======================
-// VehicleDAO
-// =======================
+// =====================================================================
+//                             VehicleDAO
+// =====================================================================
 int QueryHandler::addVehicle(const std::string& chassisCode)
 {
     return vehicle.addVehicle(chassisCode);

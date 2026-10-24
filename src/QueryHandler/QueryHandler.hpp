@@ -22,9 +22,9 @@ public:
     QueryHandler(sqlite3* db_connection);
     ~QueryHandler();
 
-    // =================
-    // InventoryDAO
-    // =================
+    // =====================================================================
+    //                             InventoryDAO
+    // =====================================================================
     int addPart(const std::string& partName, const std::string& category);
     bool deletePart(const int& partId);
     Part getPartById(const int& partId);
@@ -32,9 +32,9 @@ public:
     std::vector<Part> getPartByCategory(const std::string& category);
     std::vector<Part> getAllParts();
 
-    // =================
-    // PersonnelDAO
-    // =================
+    // =====================================================================
+    //                             PersonnelDAO
+    // =====================================================================
     // Drivers
     int addDriver(const std::string& firstName, const std::string& lastName, const int& experienceLvl);
     bool deleteDriver(const int& driverId);
@@ -52,15 +52,19 @@ public:
     std::vector<Engineer> getEngineerByLastName(const std::string& lastName);
     std::vector<Engineer> getEngineerByDivision(const std::string& division);
 
-    // =================
-    // TelemetryDAO
-    // =================
+    // =====================================================================
+    //                             TelemetryDAO
+    // =====================================================================
+    int addSensor(const std::string& name, const std::string& unit);
+    std::vector<Sensor> getAllSensors();
+    int startTelemetryRun(int sessionId, int vehicleId, int driverId);
+    bool assignEngineerToRun(int runId, int engineerId);
     void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
 
 
-    // =================
-    // SessionDAO
-    // =================
+    // =====================================================================
+    //                             SessionDAO
+    // =====================================================================
     int addTrack(const std::string& name, double lengthKm);    
     std::vector<Track> getAllTracks();
     bool deleteTrack(int trackId);
@@ -69,9 +73,9 @@ public:
     SessionDetails getSessionDetails(int sessionId);
 
 
-    // =================
-    // VehicleDAO
-    // =================
+    // =====================================================================
+    //                             VehicleDAO
+    // =====================================================================
     int addVehicle(const std::string& chassisCode);
     bool deleteVehicle(int vehicleId);
     std::vector<Vehicle> getAllVehicles();
