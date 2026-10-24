@@ -1,5 +1,4 @@
 #pragma once
-#include "Mocks/sensor_readings.hpp"
 #include "Logger/Logger.hpp"
 #include <iostream>
 #include <sqlite3.h>
@@ -12,5 +11,5 @@ private:
 public:
     DatabaseManager(const char* db_path);
     ~DatabaseManager();
-    void insertMockReadings();
+    sqlite3* getConnection();
 };
