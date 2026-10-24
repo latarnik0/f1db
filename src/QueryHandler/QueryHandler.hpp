@@ -57,11 +57,21 @@ public:
     // =================
     void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
 
+    
     // =================
     // SessionDAO
     // =================
 
+
     // =================
     // VehicleDAO
     // =================
+    int addVehicle(const std::string& chassisCode);
+    bool deleteVehicle(int vehicleId);
+    std::vector<Vehicle> getAllVehicles();
+    bool setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness);
+    VehicleSetup getVehicleSetup(int vehicleId);
+    bool installPartOnVehicle(int vehicleId, int partId);
+    bool removePartFromVehicle(int vehicleId, int partId);
+    std::vector<InstalledPart> getVehicleWithInstalledParts(int vehicleId);
 };

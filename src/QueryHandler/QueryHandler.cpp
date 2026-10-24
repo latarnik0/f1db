@@ -137,3 +137,42 @@ void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& s
 // =======================
 // VehicleDAO
 // =======================
+int QueryHandler::addVehicle(const std::string& chassisCode)
+{
+    return vehicle.addVehicle(chassisCode);
+}
+
+bool QueryHandler::deleteVehicle(int vehicleId)
+{
+    return vehicle.deleteVehicle(vehicleId);
+}
+
+std::vector<Vehicle> QueryHandler::getAllVehicles()
+{
+    return vehicle.getAllVehicles();
+}
+
+bool QueryHandler::setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness)
+{
+    return vehicle.setVehicleSetup(vehicleId, aeroBalance, suspensionStiffness);
+}
+
+VehicleSetup QueryHandler::getVehicleSetup(int vehicleId)
+{
+    return vehicle.getVehicleSetup(vehicleId);
+}
+
+bool QueryHandler::installPartOnVehicle(int vehicleId, int partId)
+{
+    return vehicle.installPartOnVehicle(vehicleId, partId);
+}
+
+bool QueryHandler::removePartFromVehicle(int vehicleId, int partId)
+{
+    return vehicle.removePartFromVehicle(vehicleId, partId);
+}
+
+std::vector<InstalledPart> QueryHandler::getVehicleWithInstalledParts(int vehicleId)
+{
+    return vehicle.getVehicleWithInstalledParts(vehicleId);
+}

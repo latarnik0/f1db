@@ -5,27 +5,31 @@
 // Personnel, dictionaries
 // ==========================================
 
-struct Track {
+struct Track
+{
     int id;
     std::string name;
     double lengthKm;
 };
 
-struct Driver {
+struct Driver
+{
     int id;
     std::string firstName;
     std::string lastName;
     int experienceLvl;
 };
 
-struct Engineer {
+struct Engineer
+{
     int id;
     std::string firstName;
     std::string lastName;
     std::string division;
 };
 
-struct Sensor {
+struct Sensor
+{
     int id;
     std::string name;
     std::string unit;
@@ -35,53 +39,69 @@ struct Sensor {
 // Vehicles and parts
 // ==========================================
 
-struct Vehicle {
+struct Vehicle
+{
     int id;
     std::string chassisCode;
 };
 
-struct Part {
+struct Part
+{
     int id;
     std::string partName;
     std::string category;
 };
 
-struct VehiclePart {
+struct VehiclePart
+{
     int vehicleId;
     int partId;
     std::string installedAt;
 };
 
-struct VehicleSetup {
+struct VehicleSetup
+{
     int id;
     int vehicleId;
     double aeroBalance;
     std::string suspensionStiffness;
 };
 
+struct InstalledPart
+{
+    int partId;
+    std::string partName;
+    std::string category;
+    std::string installedAt;
+};
+
 // ==========================================
 // Telemetry
 // ==========================================
 
-struct RaceSession {
+struct RaceSession
+{
     int id;
     int trackId;
     std::string sessionDate;
 };
 
-struct TelemetryRun {
+struct TelemetryRun
+{
     int id;
     int sessionId;
     int vehicleId;
     int driverId;
 };
 
-struct RunEngineer {
+struct RunEngineer
+{
     int runId;
     int engineerId;
 };
 
-struct SensorReading {
+struct SensorReading
+{
     int runId;
     int sensorId;
     std::string recordedAt;
