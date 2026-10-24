@@ -28,6 +28,7 @@ target_include_directories(f1db PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DAOs
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryHandler
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Logger
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Models
 )
 
 target_link_libraries(f1db sqlite3)
