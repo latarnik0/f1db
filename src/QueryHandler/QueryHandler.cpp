@@ -132,6 +132,35 @@ void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& s
 // =======================
 // SessionDAO
 // =======================
+int QueryHandler::addTrack(const std::string& name, double lengthKm)
+{
+    return session.addTrack(name, lengthKm);
+}    
+
+bool QueryHandler::deleteTrack(int trackId)
+{
+    return session.deleteTrack(trackId);
+}
+
+std::vector<Track> QueryHandler::getAllTracks()
+{
+    return session.getAllTracks();
+}
+
+int QueryHandler::startSession(int trackId)
+{
+    return session.startSession(trackId);
+}
+
+std::vector<RaceSession> QueryHandler::getAllSessions()
+{
+    return session.getAllSessions();
+}
+
+SessionDetails QueryHandler::getSessionDetails(int sessionId)
+{
+    return session.getSessionDetails(sessionId);
+}
 
 
 // =======================

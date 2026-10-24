@@ -57,10 +57,16 @@ public:
     // =================
     void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
 
-    
+
     // =================
     // SessionDAO
     // =================
+    int addTrack(const std::string& name, double lengthKm);    
+    std::vector<Track> getAllTracks();
+    bool deleteTrack(int trackId);
+    int startSession(int trackId);
+    std::vector<RaceSession> getAllSessions();
+    SessionDetails getSessionDetails(int sessionId);
 
 
     // =================

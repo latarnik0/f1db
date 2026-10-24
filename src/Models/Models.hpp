@@ -107,3 +107,12 @@ struct SensorReading
     std::string recordedAt;
     double value;
 };
+
+struct SessionDetails
+{
+    int sessionId;
+    std::string sessionDate;
+    int trackId;
+    std::string trackName;
+    double trackLengthKm;
+};
