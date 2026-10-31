@@ -30,13 +30,20 @@ qt_add_executable(f1db
     src/Mocks/MockReadings.cpp
 )
 
-# QML module — odkomentuj i uzupełnij, gdy pojawią się pliki .qml:
-# qt_add_qml_module(f1db
-#     URI F1DB
-#     VERSION 1.0
-#     QML_FILES
-#         src/qml/Main.qml
-# )
+qt_policy(SET QTP0004 NEW)
+
+qt_add_qml_module(f1db
+    URI F1DB
+    VERSION 1.0
+    QML_FILES
+        src/QML/Main.qml
+        src/QML/components/SideNav.qml
+        src/QML/pages/DashboardPage.qml
+        src/QML/pages/TelemetryRunsPage.qml
+        src/QML/pages/PartsInventoryPage.qml
+        src/QML/pages/RaceSessionsPage.qml
+        src/QML/pages/VehicleSetupsPage.qml
+)
 
 target_include_directories(f1db PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -46,7 +53,7 @@ target_include_directories(f1db PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryHandler
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Logger
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Models
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QObjectControllers
 )
 
 target_link_libraries(f1db PRIVATE

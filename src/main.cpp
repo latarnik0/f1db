@@ -8,6 +8,8 @@
 int main(int argc, char *argv[]) 
 {
     QGuiApplication f1db_app(argc, argv);
+    QQmlApplicationEngine engine;
+    engine.loadFromModule("F1DB", "Main");
     
     DatabaseManager dbman("f1.db");
     QueryHandler qh(dbman.getConnection());

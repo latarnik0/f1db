@@ -31,7 +31,7 @@ void Logger::log(LogLevel level, const std::string& message)
 
     std::ostringstream logEntry;
     logEntry << "[" << timestamp << "] "
-            << levelToString(level) << ": " << message
+            << "[" << levelToString(level) << "] " << message
             << std::endl;
 
     std::cout << logEntry.str();
