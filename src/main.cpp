@@ -3,10 +3,14 @@
 #include "DatabaseManager/DatabaseManager.hpp"
 #include <sqlite3.h>
 #include <QGuiApplication>
+#include <QQmlApplicationEngine>
 
-int main() 
+int main(int argc, char *argv[]) 
 {
+    QGuiApplication f1db_app(argc, argv);
+    
     DatabaseManager dbman("f1.db");
     QueryHandler qh(dbman.getConnection());
-    return 0;
+    
+    return f1db_app.exec();
 }
