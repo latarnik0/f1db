@@ -19,6 +19,7 @@ int SessionDAO::addTrack(const std::string& name, double lengthKm)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "SESSION: Track added");
         }
     }
     else 
@@ -69,6 +70,7 @@ bool SessionDAO::deleteTrack(int trackId)
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
+                Logger::getInstance().log(INFO, "SESSION: Track deleted");
             }
         }
     }
@@ -93,6 +95,7 @@ int SessionDAO::startSession(int trackId)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "SESSION: New session added");
         }
     }
     else
@@ -149,6 +152,7 @@ SessionDetails SessionDAO::getSessionDetails(int sessionId)
             sd.trackName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
             sd.trackLengthKm = sqlite3_column_double(stmt, 4);  
             sqlite3_finalize(stmt);
+            Logger::getInstance().log(INFO, "SESSION: getSessionDetails success ");
             return sd;
         }
     }

@@ -19,7 +19,7 @@ int VehicleDAO::addVehicle(const std::string& chassisCode)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
-            Logger::getInstance().log(INFO, "Entry added");
+            Logger::getInstance().log(INFO, "VEHICLE: Vehicle added");
         }
     }
     else
@@ -45,7 +45,7 @@ bool VehicleDAO::deleteVehicle(int vehicleId)
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
-                Logger::getInstance().log(INFO, "Entry deleted");
+                Logger::getInstance().log(INFO, "VEHICLE: Vehicle deleted");
             }
         }
     }
@@ -83,7 +83,6 @@ std::vector<Vehicle> VehicleDAO::getAllVehicles()
 
 bool VehicleDAO::setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness)
 {
-    // INSERT OR REPLACE zadba o to, żeby zaktualizować wiersz, jeśli ustawienia dla tego bolidu już istnieją
     const char* sql = "INSERT OR REPLACE INTO vehicle_setups (vehicle_id, aero_balance, suspension_stiffness) VALUES (?, ?, ?);";
     sqlite3_stmt* stmt;
     bool result = false;
@@ -97,7 +96,7 @@ bool VehicleDAO::setVehicleSetup(int vehicleId, double aeroBalance, const std::s
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             result = true;
-            Logger::getInstance().log(INFO, "Setup added");
+            Logger::getInstance().log(INFO, "VEHICLE: Setup added");
         }
     }
     else
@@ -139,7 +138,6 @@ VehicleSetup VehicleDAO::getVehicleSetup(int vehicleId)
 
 bool VehicleDAO::installPartOnVehicle(int vehicleId, int partId)
 {
-    // kolumna installed_at sama się wypełnia dzięki DEFAULT CURRENT_TIMESTAMP w schemacie bazy
     const char* sql = "INSERT INTO vehicle_parts (vehicle_id, part_id) VALUES (?, ?);";
     sqlite3_stmt* stmt;
     bool result = false;
@@ -152,7 +150,7 @@ bool VehicleDAO::installPartOnVehicle(int vehicleId, int partId)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             result = true;
-            Logger::getInstance().log(INFO, "Part installed");
+            Logger::getInstance().log(INFO, "VEHICLE: Part installed");
         }
     }
     else
@@ -179,7 +177,7 @@ bool VehicleDAO::removePartFromVehicle(int vehicleId, int partId)
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
-                Logger::getInstance().log(INFO, "Part removed");
+                Logger::getInstance().log(INFO, "VEHICLE: Part removed");
             }
         }
     }

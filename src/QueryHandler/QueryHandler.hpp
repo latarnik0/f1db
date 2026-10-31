@@ -60,7 +60,7 @@ public:
     std::vector<Sensor> getAllSensors();
     int startTelemetryRun(int sessionId, int vehicleId, int driverId);
     bool assignEngineerToRun(int runId, int engineerId);
-    void insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData);
+    void insertMockReadings(std::vector<std::vector<MockSensorReading>>& sensorData);
 
     // analytical data
     RunDetails getRunDetails(int runId);

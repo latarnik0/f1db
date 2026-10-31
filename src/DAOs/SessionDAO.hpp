@@ -1,6 +1,7 @@
 #pragma once
 #include "Models/Models.hpp"
 #include <sqlite3.h> 
+#include <vector>
 #include <string>
 
 class SessionDAO

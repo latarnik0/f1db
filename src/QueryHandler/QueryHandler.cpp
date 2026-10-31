@@ -143,7 +143,7 @@ bool QueryHandler::assignEngineerToRun(int runId, int engineerId)
     return telemetry.assignEngineerToRun(runId, engineerId);
 }
 
-void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData)
+void QueryHandler::insertMockReadings(std::vector<std::vector<MockSensorReading>>& sensorData)
 {
     return telemetry.insertBatch(sensorData);
 }

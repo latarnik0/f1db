@@ -21,6 +21,7 @@ add_executable(f1db
     
     src/Mocks/MockReadings.cpp
 )
+
 target_include_directories(f1db PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DatabaseManager
@@ -31,4 +32,6 @@ target_include_directories(f1db PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Models
 )
 
-target_link_libraries(f1db sqlite3)
+target_link_libraries(f1db 
+    sqlite3 
+)

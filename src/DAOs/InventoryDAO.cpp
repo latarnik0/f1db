@@ -18,7 +18,7 @@ int InventoryDAO::addPart(const std::string& partName, const std::string& catego
         if (sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
-            Logger::getInstance().log(INFO, "Entry added");
+            Logger::getInstance().log(INFO, "INVENTORY: Entry added");
         }
     }
     else
@@ -43,7 +43,7 @@ bool InventoryDAO::deletePart(const int& partId)
             if(sqlite3_changes(db) > 0) 
             {
                 result = true;
-                Logger::getInstance().log(INFO, "Entry deleted");
+                Logger::getInstance().log(INFO, "INVENTORY: Entry deleted");
             }
         }
     }
@@ -70,6 +70,7 @@ Part InventoryDAO::getPartById(const int& partId)
             p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
             sqlite3_finalize(stmt);
+            Logger::getInstance().log(INFO, "INVENTORY: Entry retrieved");
             return p;
         }
     }

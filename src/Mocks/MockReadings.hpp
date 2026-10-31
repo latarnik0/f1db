@@ -11,7 +11,7 @@ enum SENSOR
     IR = 4
 };
 
-struct SensorReading
+struct MockSensorReading
 {
     int runId;
     int sensorId;
@@ -26,8 +26,8 @@ public:
     ~MockReadings();
     
     SENSOR s;
-    SensorReading sr;
+    MockSensorReading sr;
 
-    std::vector<SensorReading> generateMockReadings(int sensorId, double minVal, double maxVal, int numberOfReadings = 5000);
-    std::vector<std::vector<SensorReading>> prepareMockReadings();
+    std::vector<MockSensorReading> generateMockReadings(int sensorId, double minVal, double maxVal, int numberOfReadings = 5000);
+    std::vector<std::vector<MockSensorReading>> prepareMockReadings();
 };

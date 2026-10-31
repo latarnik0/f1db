@@ -20,6 +20,7 @@ int TelemetryDAO::addSensor(const std::string& name, const std::string& unit)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "TELEMETRY: Sensor added");
         }
     }
     else 
@@ -70,6 +71,7 @@ int TelemetryDAO::startTelemetryRun(int sessionId, int vehicleId, int driverId)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "TELEMETRY: New telemetry run added");
         }
     }
     else 
@@ -94,6 +96,7 @@ bool TelemetryDAO::assignEngineerToRun(int runId, int engineerId)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             result = true;
+            Logger::getInstance().log(INFO, "TELEMETRY: Engineer assigned to a run");
         }
     }
     else 
@@ -104,7 +107,7 @@ bool TelemetryDAO::assignEngineerToRun(int runId, int engineerId)
     return result;
 }
 
-void TelemetryDAO::insertBatch(std::vector<std::vector<SensorReading>>& sensorData)
+void TelemetryDAO::insertBatch(std::vector<std::vector<MockSensorReading>>& sensorData)
 {
     char* errorMessage = nullptr;
     sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &errorMessage);
@@ -126,6 +129,7 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<SensorReading>>& sensorDa
         }
     }
     sqlite3_finalize(stmt);
+    Logger::getInstance().log(INFO, "TELEMETRY: Mock readings inserted");
     sqlite3_exec(db, "COMMIT;", nullptr, nullptr, &errorMessage);
 }
 
@@ -155,6 +159,7 @@ RunDetails TelemetryDAO::getRunDetails(int runId)
             rd.driverFirstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
             rd.driverLastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));  
             sqlite3_finalize(stmt);
+            Logger::getInstance().log(INFO, "TELEMETRY: getRunDetails success");
             return rd;
         }
     }
