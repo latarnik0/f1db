@@ -1,16 +1,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import F1DB
 
 Item {
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 24
+        anchors.margins: 16
         spacing: 12
 
         Label {
             text: "Race Sessions"
-            font.pixelSize: 28
+            color: Theme.text
+            font.pixelSize: 24
+            font.bold: true
         }
 
         Label {
@@ -22,6 +25,20 @@ Item {
             Button {
                 text: "Refresh"
                 onClicked: sessionController.refresh()
+            }
+        }
+
+        RowLayout {
+            TextField {
+                id: weatherField
+                placeholderText: "Weather"
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: temperatureField
+                placeholderText: "Temp °C"
+                Layout.preferredWidth: 100
+                validator: DoubleValidator { notation: DoubleValidator.StandardNotation }
             }
         }
 
@@ -77,7 +94,10 @@ Item {
                 }
                 Button {
                     text: "Start session"
-                    onClicked: sessionController.startSession(modelData.id)
+                    onClicked: sessionController.startSession(
+                        modelData.id,
+                        weatherField.text,
+                        temperatureField.text.trim() === "" ? 0 : parseFloat(temperatureField.text))
                 }
                 Button {
                     text: "Delete"
@@ -97,6 +117,7 @@ Item {
                 var d = sessionController.selectedSessionDetails
                 return "Details #" + d.sessionId + " | " + d.sessionDate
                        + " | " + d.trackName + " (" + d.trackLengthKm + " km)"
+                       + " | " + d.weatherCondition + " " + d.temperatureC + "°C"
             }
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -122,6 +143,10 @@ Item {
                 }
                 Label {
                     text: modelData.sessionDate
+                    Layout.preferredWidth: 160
+                }
+                Label {
+                    text: modelData.weatherCondition + " " + modelData.temperatureC + "°C"
                     Layout.fillWidth: true
                 }
                 Button {

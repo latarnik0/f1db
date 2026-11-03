@@ -25,7 +25,8 @@ public:
     // =====================================================================
     //                             InventoryDAO
     // =====================================================================
-    int addPart(const std::string& partName, const std::string& category);
+    int addPart(const std::string& partName, const std::string& category, double wearPercent);
+    bool updatePartWear(int partId, double wearPercent);
     bool deletePart(const int& partId);
     Part getPartById(const int& partId);
     std::vector<Part> getPartByPartName(const std::string& partName);
@@ -59,10 +60,10 @@ public:
     int addSensor(const std::string& name, const std::string& unit);
     std::vector<Sensor> getAllSensors();
     int startTelemetryRun(int sessionId, int vehicleId, int driverId);
+    bool setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS);
     bool assignEngineerToRun(int runId, int engineerId);
     void insertMockReadings(std::vector<std::vector<MockSensorReading>>& sensorData);
 
-    // analytical data
     RunDetails getRunDetails(int runId);
     std::vector<Engineer> getEngineersForRun(int runId);
     std::vector<SensorReading> getRunTelemetry(int runId, int sensorId);
@@ -75,7 +76,7 @@ public:
     int addTrack(const std::string& name, double lengthKm);    
     std::vector<Track> getAllTracks();
     bool deleteTrack(int trackId);
-    int startSession(int trackId);
+    int startSession(int trackId, const std::string& weatherCondition, double temperatureC);
     std::vector<RaceSession> getAllSessions();
     SessionDetails getSessionDetails(int sessionId);
 
@@ -86,7 +87,7 @@ public:
     int addVehicle(const std::string& chassisCode);
     bool deleteVehicle(int vehicleId);
     std::vector<Vehicle> getAllVehicles();
-    bool setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness);
+    bool setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const std::string& suspensionStiffness);
     VehicleSetup getVehicleSetup(int vehicleId);
     bool installPartOnVehicle(int vehicleId, int partId);
     bool removePartFromVehicle(int vehicleId, int partId);

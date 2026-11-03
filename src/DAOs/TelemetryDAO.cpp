@@ -82,6 +82,37 @@ int TelemetryDAO::startTelemetryRun(int sessionId, int vehicleId, int driverId)
     return newId;
 }
 
+bool TelemetryDAO::setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS)
+{
+    const char* sql = "UPDATE telemetry_runs SET sector1_s = ?, sector2_s = ?, sector3_s = ?, lap_time_s = ? WHERE run_id = ?;";
+    sqlite3_stmt* stmt;
+    bool result = false;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        sqlite3_bind_double(stmt, 1, sector1S);
+        sqlite3_bind_double(stmt, 2, sector2S);
+        sqlite3_bind_double(stmt, 3, sector3S);
+        sqlite3_bind_double(stmt, 4, lapTimeS);
+        sqlite3_bind_int(stmt, 5, runId);
+
+        if(sqlite3_step(stmt) == SQLITE_DONE)
+        {
+            if(sqlite3_changes(db) > 0)
+            {
+                result = true;
+                Logger::getInstance().log(INFO, "TELEMETRY: Run sectors updated");
+            }
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return result;
+}
+
 bool TelemetryDAO::assignEngineerToRun(int runId, int engineerId)
 {
     const char* sql = "INSERT INTO run_engineers (run_id, engineer_id) VALUES (?, ?);";
@@ -135,35 +166,39 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<MockSensorReading>>& sens
 
 RunDetails TelemetryDAO::getRunDetails(int runId)
 {
-    // JOIN łączący 4 tabele: telemetry_runs, race_sessions, vehicles, drivers
-    const char* sql = 
-        "SELECT tr.run_id, rs.session_date, v.chassis_code, d.first_name, d.last_name "
+    const char* sql =
+        "SELECT tr.run_id, rs.session_date, v.chassis_code, d.first_name, d.last_name, "
+        "tr.sector1_s, tr.sector2_s, tr.sector3_s, tr.lap_time_s "
         "FROM telemetry_runs tr "
         "JOIN race_sessions rs ON tr.session_id = rs.session_id "
         "JOIN vehicles v ON tr.vehicle_id = v.vehicle_id "
         "JOIN drivers d ON tr.driver_id = d.driver_id "
         "WHERE tr.run_id = ?;";
-        
-    sqlite3_stmt* stmt;
-    RunDetails rd;
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    sqlite3_stmt* stmt;
+    RunDetails rd = {};
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, runId);
 
-        if(sqlite3_step(stmt) == SQLITE_ROW) 
+        if(sqlite3_step(stmt) == SQLITE_ROW)
         {
             rd.runId = sqlite3_column_int(stmt, 0);
             rd.sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             rd.chassisCode = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
             rd.driverFirstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-            rd.driverLastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));  
+            rd.driverLastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+            rd.sector1S = sqlite3_column_double(stmt, 5);
+            rd.sector2S = sqlite3_column_double(stmt, 6);
+            rd.sector3S = sqlite3_column_double(stmt, 7);
+            rd.lapTimeS = sqlite3_column_double(stmt, 8);
             sqlite3_finalize(stmt);
             Logger::getInstance().log(INFO, "TELEMETRY: getRunDetails success");
             return rd;
         }
     }
-    else 
+    else
     {
         Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
     }

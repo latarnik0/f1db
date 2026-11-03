@@ -1,16 +1,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import F1DB
 
 Item {
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 24
+        anchors.margins: 16
         spacing: 12
 
         Label {
             text: "Vehicle Setups"
-            font.pixelSize: 28
+            color: Theme.text
+            font.pixelSize: 24
+            font.bold: true
         }
 
         Label {
@@ -88,9 +91,21 @@ Item {
                 validator: IntValidator { bottom: 1 }
             }
             TextField {
-                id: aeroField
-                placeholderText: "aeroBalance"
-                Layout.preferredWidth: 110
+                id: frontWingField
+                placeholderText: "frontWing"
+                Layout.preferredWidth: 90
+                validator: DoubleValidator { notation: DoubleValidator.StandardNotation }
+            }
+            TextField {
+                id: rearWingField
+                placeholderText: "rearWing"
+                Layout.preferredWidth: 90
+                validator: DoubleValidator { notation: DoubleValidator.StandardNotation }
+            }
+            TextField {
+                id: brakeBiasField
+                placeholderText: "brakeBias"
+                Layout.preferredWidth: 90
                 validator: DoubleValidator { notation: DoubleValidator.StandardNotation }
             }
             TextField {
@@ -102,7 +117,9 @@ Item {
                 text: "Save setup"
                 onClicked: vehicleController.setVehicleSetup(
                     parseInt(setupVehicleId.text),
-                    parseFloat(aeroField.text),
+                    parseFloat(frontWingField.text),
+                    parseFloat(rearWingField.text),
+                    parseFloat(brakeBiasField.text),
                     suspensionField.text)
             }
         }
@@ -112,7 +129,9 @@ Item {
             text: {
                 var s = vehicleController.selectedSetup
                 return "Setup #" + s.id + " vehicle " + s.vehicleId
-                       + " aero=" + s.aeroBalance
+                       + " FW=" + s.frontWingAngle
+                       + " RW=" + s.rearWingAngle
+                       + " bias=" + s.brakeBias
                        + " suspension=" + s.suspensionStiffness
             }
             Layout.fillWidth: true

@@ -24,7 +24,7 @@ void InventoryController::refresh()
     setStatusMessage(QStringLiteral("Loaded %1 parts").arg(m_parts.size()));
 }
 
-bool InventoryController::addPart(const QString& partName, const QString& category)
+bool InventoryController::addPart(const QString& partName, const QString& category, double wearPercent)
 {
     if(partName.trimmed().isEmpty() || category.trimmed().isEmpty())
     {
@@ -32,9 +32,16 @@ bool InventoryController::addPart(const QString& partName, const QString& catego
         return false;
     }
 
+    if(wearPercent < 0.0 || wearPercent > 100.0)
+    {
+        setStatusMessage(QStringLiteral("Wear must be 0..100"));
+        return false;
+    }
+
     const int newId = m_queryHandler.addPart(
         partName.trimmed().toStdString(),
-        category.trimmed().toStdString());
+        category.trimmed().toStdString(),
+        wearPercent);
 
     if(newId < 0)
     {
@@ -43,6 +50,30 @@ bool InventoryController::addPart(const QString& partName, const QString& catego
     }
     refresh();
     setStatusMessage(QStringLiteral("Added part #%1").arg(newId));
+    return true;
+}
+
+bool InventoryController::updatePartWear(int partId, double wearPercent)
+{
+    if(partId <= 0)
+    {
+        setStatusMessage(QStringLiteral("Part id must be > 0"));
+        return false;
+    }
+
+    if(wearPercent < 0.0 || wearPercent > 100.0)
+    {
+        setStatusMessage(QStringLiteral("Wear must be 0..100"));
+        return false;
+    }
+
+    if(!m_queryHandler.updatePartWear(partId, wearPercent))
+    {
+        setStatusMessage(QStringLiteral("Failed to update wear for part #%1").arg(partId));
+        return false;
+    }
+    refresh();
+    setStatusMessage(QStringLiteral("Updated wear for part #%1").arg(partId));
     return true;
 }
 
@@ -90,6 +121,7 @@ void InventoryController::setParts(const std::vector<Part>& parts)
             {QStringLiteral("id"), part.id},
             {QStringLiteral("partName"), QString::fromStdString(part.partName)},
             {QStringLiteral("category"), QString::fromStdString(part.category)},
+            {QStringLiteral("wearPercent"), part.wearPercent},
         });
     }
     emit partsChanged();

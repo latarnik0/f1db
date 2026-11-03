@@ -1,16 +1,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import F1DB
 
 Item {
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 24
+        anchors.margins: 16
         spacing: 12
 
         Label {
             text: "Telemetry Runs"
-            font.pixelSize: 28
+            color: Theme.text
+            font.pixelSize: 24
+            font.bold: true
         }
 
         Label {
@@ -163,6 +166,42 @@ Item {
             }
         }
 
+        RowLayout {
+            TextField {
+                id: sector1Field
+                placeholderText: "S1 s"
+                Layout.preferredWidth: 80
+                validator: DoubleValidator { bottom: 0; notation: DoubleValidator.StandardNotation }
+            }
+            TextField {
+                id: sector2Field
+                placeholderText: "S2 s"
+                Layout.preferredWidth: 80
+                validator: DoubleValidator { bottom: 0; notation: DoubleValidator.StandardNotation }
+            }
+            TextField {
+                id: sector3Field
+                placeholderText: "S3 s"
+                Layout.preferredWidth: 80
+                validator: DoubleValidator { bottom: 0; notation: DoubleValidator.StandardNotation }
+            }
+            TextField {
+                id: lapTimeField
+                placeholderText: "Lap s"
+                Layout.preferredWidth: 80
+                validator: DoubleValidator { bottom: 0; notation: DoubleValidator.StandardNotation }
+            }
+            Button {
+                text: "Set sectors"
+                onClicked: telemetryController.setRunSectors(
+                    parseInt(runIdField.text),
+                    parseFloat(sector1Field.text),
+                    parseFloat(sector2Field.text),
+                    parseFloat(sector3Field.text),
+                    parseFloat(lapTimeField.text))
+            }
+        }
+
         Label {
             visible: Object.keys(telemetryController.selectedRunDetails).length > 0
             text: {
@@ -170,6 +209,10 @@ Item {
                 return "Run #" + d.runId + " | " + d.sessionDate
                        + " | " + d.chassisCode
                        + " | " + d.driverFirstName + " " + d.driverLastName
+                       + " | S1=" + d.sector1S
+                       + " S2=" + d.sector2S
+                       + " S3=" + d.sector3S
+                       + " lap=" + d.lapTimeS
             }
             Layout.fillWidth: true
             wrapMode: Text.WordWrap

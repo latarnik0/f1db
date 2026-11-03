@@ -25,7 +25,7 @@ public:
     Q_INVOKABLE void refresh();
     Q_INVOKABLE bool addVehicle(const QString& chassisCode);
     Q_INVOKABLE bool removeVehicle(int vehicleId);
-    Q_INVOKABLE bool setVehicleSetup(int vehicleId, double aeroBalance, const QString& suspensionStiffness);
+    Q_INVOKABLE bool setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const QString& suspensionStiffness);
     Q_INVOKABLE void loadSetup(int vehicleId);
     Q_INVOKABLE bool installPart(int vehicleId, int partId);
     Q_INVOKABLE bool removePart(int vehicleId, int partId);

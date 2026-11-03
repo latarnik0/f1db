@@ -82,25 +82,27 @@ bool SessionDAO::deleteTrack(int trackId)
     return result;
 }
 
-int SessionDAO::startSession(int trackId)
+int SessionDAO::startSession(int trackId, const std::string& weatherCondition, double temperatureC)
 {
-    const char* sql = "INSERT INTO race_sessions (track_id) VALUES (?);";
+    const char* sql = "INSERT INTO race_sessions (track_id, weather_condition, temperature_c) VALUES (?, ?, ?);";
     sqlite3_stmt* stmt;
     int newId = -1;
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, trackId);
+        sqlite3_bind_text(stmt, 2, weatherCondition.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 3, temperatureC);
 
-        if(sqlite3_step(stmt) == SQLITE_DONE) 
+        if(sqlite3_step(stmt) == SQLITE_DONE)
         {
             newId = sqlite3_last_insert_rowid(db);
             Logger::getInstance().log(INFO, "SESSION: New session added");
         }
     }
     else
-    { 
-        Logger::getInstance().log(ERROR, sqlite3_errmsg(db)); 
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
     return newId;
@@ -108,23 +110,26 @@ int SessionDAO::startSession(int trackId)
 
 std::vector<RaceSession> SessionDAO::getAllSessions()
 {
-    const char* sql = "SELECT session_id, track_id, session_date FROM race_sessions;";
+    const char* sql = "SELECT session_id, track_id, session_date, weather_condition, temperature_c FROM race_sessions;";
     sqlite3_stmt* stmt;
     std::vector<RaceSession> sessionsList;
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
-        while(sqlite3_step(stmt) == SQLITE_ROW) 
+        while(sqlite3_step(stmt) == SQLITE_ROW)
         {
             RaceSession rs;
             rs.id = sqlite3_column_int(stmt, 0);
             rs.trackId = sqlite3_column_int(stmt, 1);
             rs.sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            const char* weather = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            rs.weatherCondition = weather != nullptr ? weather : "";
+            rs.temperatureC = sqlite3_column_double(stmt, 4);
             sessionsList.push_back(rs);
         }
     }
-    else 
-    { 
+    else
+    {
         Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
@@ -133,31 +138,35 @@ std::vector<RaceSession> SessionDAO::getAllSessions()
 
 SessionDetails SessionDAO::getSessionDetails(int sessionId)
 {
-    const char* sql = "SELECT rs.session_id, rs.session_date, t.track_id, t.name, t.length_km "
+    const char* sql = "SELECT rs.session_id, rs.session_date, t.track_id, t.name, t.length_km, "
+                      "rs.weather_condition, rs.temperature_c "
                       "FROM race_sessions rs "
                       "JOIN tracks t ON rs.track_id = t.track_id "
                       "WHERE rs.session_id = ?;";
     sqlite3_stmt* stmt;
-    SessionDetails sd;
+    SessionDetails sd = {};
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, sessionId);
 
-        if(sqlite3_step(stmt) == SQLITE_ROW) 
+        if(sqlite3_step(stmt) == SQLITE_ROW)
         {
             sd.sessionId = sqlite3_column_int(stmt, 0);
             sd.sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             sd.trackId = sqlite3_column_int(stmt, 2);
             sd.trackName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-            sd.trackLengthKm = sqlite3_column_double(stmt, 4);  
+            sd.trackLengthKm = sqlite3_column_double(stmt, 4);
+            const char* weather = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+            sd.weatherCondition = weather != nullptr ? weather : "";
+            sd.temperatureC = sqlite3_column_double(stmt, 6);
             sqlite3_finalize(stmt);
             Logger::getInstance().log(INFO, "SESSION: getSessionDetails success ");
             return sd;
         }
     }
     else
-    { 
+    {
         Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);

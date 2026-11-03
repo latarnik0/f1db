@@ -90,6 +90,28 @@ bool TelemetryController::startTelemetryRun(int sessionId, int vehicleId, int dr
     return true;
 }
 
+bool TelemetryController::setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS)
+{
+    if(runId <= 0)
+    {
+        setStatusMessage(QStringLiteral("Run id must be > 0"));
+        return false;
+    }
+
+    if(!m_queryHandler.setRunSectors(runId, sector1S, sector2S, sector3S, lapTimeS))
+    {
+        setStatusMessage(QStringLiteral("Failed to set sectors for run #%1").arg(runId));
+        return false;
+    }
+
+    if(m_selectedRunDetails.value(QStringLiteral("runId")).toInt() == runId)
+    {
+        loadRunDetails(runId);
+    }
+    setStatusMessage(QStringLiteral("Updated sectors for run #%1").arg(runId));
+    return true;
+}
+
 bool TelemetryController::assignEngineerToRun(int runId, int engineerId)
 {
     if(runId <= 0 || engineerId <= 0)
@@ -155,6 +177,10 @@ void TelemetryController::loadRunDetails(int runId)
         {QStringLiteral("chassisCode"), QString::fromStdString(details.chassisCode)},
         {QStringLiteral("driverFirstName"), QString::fromStdString(details.driverFirstName)},
         {QStringLiteral("driverLastName"), QString::fromStdString(details.driverLastName)},
+        {QStringLiteral("sector1S"), details.sector1S},
+        {QStringLiteral("sector2S"), details.sector2S},
+        {QStringLiteral("sector3S"), details.sector3S},
+        {QStringLiteral("lapTimeS"), details.lapTimeS},
     });
     setStatusMessage(QStringLiteral("Loaded run #%1 details").arg(details.runId));
 }
@@ -174,6 +200,24 @@ void TelemetryController::loadRunTelemetry(int runId, int sensorId)
                          .arg(m_telemetryReadings.size())
                          .arg(runId)
                          .arg(sensorId));
+}
+
+QVariantList TelemetryController::fetchRunTelemetry(int runId, int sensorId)
+{
+    QVariantList result;
+    const std::vector<SensorReading> readings = m_queryHandler.getRunTelemetry(runId, sensorId);
+    result.reserve(static_cast<int>(readings.size()));
+
+    for(const SensorReading& reading : readings)
+    {
+        result.append(QVariantMap{
+            {QStringLiteral("runId"), reading.runId},
+            {QStringLiteral("sensorId"), reading.sensorId},
+            {QStringLiteral("recordedAt"), QString::fromStdString(reading.recordedAt)},
+            {QStringLiteral("value"), reading.value},
+        });
+    }
+    return result;
 }
 
 void TelemetryController::loadSensorStatistics(int runId, int sensorId)

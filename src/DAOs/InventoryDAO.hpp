@@ -13,7 +13,8 @@ public:
     InventoryDAO(sqlite3* db_connection);
     ~InventoryDAO();
 
-    int addPart(const std::string& partName, const std::string& category);
+    int addPart(const std::string& partName, const std::string& category, double wearPercent);
+    bool updatePartWear(int partId, double wearPercent);
     bool deletePart(const int& partId);
     Part getPartById(const int& partId);
     std::vector<Part> getPartByPartName(const std::string& partName);

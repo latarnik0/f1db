@@ -29,11 +29,13 @@ public:
     Q_INVOKABLE void refresh();
     Q_INVOKABLE bool addSensor(const QString& name, const QString& unit);
     Q_INVOKABLE bool startTelemetryRun(int sessionId, int vehicleId, int driverId);
+    Q_INVOKABLE bool setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS);
     Q_INVOKABLE bool assignEngineerToRun(int runId, int engineerId);
     Q_INVOKABLE bool insertMockReadings(int runId);
     Q_INVOKABLE void loadRunDetails(int runId);
     Q_INVOKABLE void loadEngineersForRun(int runId);
     Q_INVOKABLE void loadRunTelemetry(int runId, int sensorId);
+    Q_INVOKABLE QVariantList fetchRunTelemetry(int runId, int sensorId);
     Q_INVOKABLE void loadSensorStatistics(int runId, int sensorId);
 
 signals:

@@ -8,19 +8,17 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Charts Widgets)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(f1db
     src/main.cpp
 
-    # logic
     src/Logger/Logger.cpp
     src/DatabaseManager/DatabaseManager.cpp
     src/QueryHandler/QueryHandler.cpp
 
-    # DAOs
     src/DAOs/InventoryDAO.cpp
     src/DAOs/PersonnelDAO.cpp
     src/DAOs/VehicleDAO.cpp
@@ -29,6 +27,7 @@ qt_add_executable(f1db
 
     src/Mocks/MockReadings.cpp
 
+    src/QObjectControllers/AppState/AppState.cpp
     src/QObjectControllers/InventoryController/InventoryController.cpp
     src/QObjectControllers/PersonnelController/PersonnelController.cpp
     src/QObjectControllers/SessionController/SessionController.cpp
@@ -38,18 +37,26 @@ qt_add_executable(f1db
 
 qt_policy(SET QTP0004 NEW)
 
+set_source_files_properties(src/QML/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(f1db
     URI F1DB
     VERSION 1.0
+    DEPENDENCIES
+        QtCharts
     QML_FILES
+        src/QML/Theme.qml
         src/QML/Main.qml
         src/QML/components/SideNav.qml
+        src/QML/components/TopBar.qml
+        src/QML/components/Card.qml
         src/QML/pages/DashboardPage.qml
-        src/QML/pages/PersonnelPage.qml
-        src/QML/pages/PartsInventoryPage.qml
-        src/QML/pages/VehicleSetupsPage.qml
-        src/QML/pages/RaceSessionsPage.qml
         src/QML/pages/TelemetryRunsPage.qml
+        src/QML/pages/SensorsPage.qml
+        src/QML/pages/VehicleSetupsPage.qml
+        src/QML/pages/PartsInventoryPage.qml
+        src/QML/pages/RaceSessionsPage.qml
+        src/QML/pages/SettingsPage.qml
 )
 
 target_include_directories(f1db PRIVATE
@@ -65,5 +72,7 @@ target_include_directories(f1db PRIVATE
 
 target_link_libraries(f1db PRIVATE
     Qt6::Quick
+    Qt6::Charts
+    Qt6::Widgets
     sqlite3
 )

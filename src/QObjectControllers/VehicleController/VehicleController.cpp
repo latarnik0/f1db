@@ -68,7 +68,7 @@ bool VehicleController::removeVehicle(int vehicleId)
     return true;
 }
 
-bool VehicleController::setVehicleSetup(int vehicleId, double aeroBalance, const QString& suspensionStiffness)
+bool VehicleController::setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const QString& suspensionStiffness)
 {
     if(vehicleId <= 0)
     {
@@ -84,7 +84,9 @@ bool VehicleController::setVehicleSetup(int vehicleId, double aeroBalance, const
 
     if(!m_queryHandler.setVehicleSetup(
             vehicleId,
-            aeroBalance,
+            frontWingAngle,
+            rearWingAngle,
+            brakeBias,
             suspensionStiffness.trimmed().toStdString()))
     {
         setStatusMessage(QStringLiteral("Failed to set setup for vehicle #%1").arg(vehicleId));
@@ -110,7 +112,9 @@ void VehicleController::loadSetup(int vehicleId)
     setSelectedSetup(QVariantMap{
         {QStringLiteral("id"), setup.id},
         {QStringLiteral("vehicleId"), setup.vehicleId},
-        {QStringLiteral("aeroBalance"), setup.aeroBalance},
+        {QStringLiteral("frontWingAngle"), setup.frontWingAngle},
+        {QStringLiteral("rearWingAngle"), setup.rearWingAngle},
+        {QStringLiteral("brakeBias"), setup.brakeBias},
         {QStringLiteral("suspensionStiffness"), QString::fromStdString(setup.suspensionStiffness)},
     });
     setStatusMessage(QStringLiteral("Loaded setup for vehicle #%1").arg(setup.vehicleId));
@@ -217,6 +221,7 @@ void VehicleController::setInstalledParts(const std::vector<InstalledPart>& part
             {QStringLiteral("partName"), QString::fromStdString(part.partName)},
             {QStringLiteral("category"), QString::fromStdString(part.category)},
             {QStringLiteral("installedAt"), QString::fromStdString(part.installedAt)},
+            {QStringLiteral("wearPercent"), part.wearPercent},
         });
     }
     emit installedPartsChanged();

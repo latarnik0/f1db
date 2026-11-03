@@ -16,7 +16,7 @@ public:
     int addTrack(const std::string& name, double lengthKm);    
     std::vector<Track> getAllTracks();
     bool deleteTrack(int trackId);
-    int startSession(int trackId);
+    int startSession(int trackId, const std::string& weatherCondition, double temperatureC);
     std::vector<RaceSession> getAllSessions();
     SessionDetails getSessionDetails(int sessionId);
 };

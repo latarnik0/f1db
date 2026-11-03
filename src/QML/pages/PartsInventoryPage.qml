@@ -1,16 +1,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import F1DB
 
 Item {
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 24
+        anchors.margins: 16
         spacing: 12
 
         Label {
-            text: "Parts Inventory"
-            font.pixelSize: 28
+            text: "Inventory & Parts"
+            color: Theme.text
+            font.pixelSize: 24
+            font.bold: true
         }
 
         Label {
@@ -29,18 +32,55 @@ Item {
                 placeholderText: "Category"
                 Layout.preferredWidth: 180
             }
+            TextField {
+                id: wearField
+                placeholderText: "Wear %"
+                Layout.preferredWidth: 90
+                validator: DoubleValidator {
+                    bottom: 0
+                    top: 100
+                    notation: DoubleValidator.StandardNotation
+                }
+            }
             Button {
                 text: "Add"
                 onClicked: {
-                    if (inventoryController.addPart(nameField.text, categoryField.text)) {
+                    var wear = wearField.text.trim() === "" ? 0 : parseFloat(wearField.text)
+                    if (inventoryController.addPart(nameField.text, categoryField.text, wear)) {
                         nameField.clear()
                         categoryField.clear()
+                        wearField.clear()
                     }
                 }
             }
             Button {
                 text: "Refresh"
                 onClicked: inventoryController.refresh()
+            }
+        }
+
+        RowLayout {
+            TextField {
+                id: wearPartIdField
+                placeholderText: "partId"
+                Layout.preferredWidth: 90
+                validator: IntValidator { bottom: 1 }
+            }
+            TextField {
+                id: wearUpdateField
+                placeholderText: "Wear %"
+                Layout.preferredWidth: 90
+                validator: DoubleValidator {
+                    bottom: 0
+                    top: 100
+                    notation: DoubleValidator.StandardNotation
+                }
+            }
+            Button {
+                text: "Update wear"
+                onClicked: inventoryController.updatePartWear(
+                    parseInt(wearPartIdField.text),
+                    parseFloat(wearUpdateField.text))
             }
         }
 
@@ -65,6 +105,10 @@ Item {
                 Label {
                     text: modelData.category
                     Layout.preferredWidth: 140
+                }
+                Label {
+                    text: modelData.wearPercent + "%"
+                    Layout.preferredWidth: 80
                 }
                 Button {
                     text: "Delete"

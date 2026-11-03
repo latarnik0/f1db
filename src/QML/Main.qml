@@ -1,35 +1,58 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import F1DB
 
 ApplicationWindow {
     id: root
-    width: 1200
-    height: 800
+    width: 1400
+    height: 900
     visible: true
     title: "F1DB"
+    color: Theme.bg
+    palette.window: Theme.bg
+    palette.windowText: Theme.text
+    palette.base: Theme.inputBg
+    palette.text: Theme.text
+    palette.button: Theme.panelAlt
+    palette.buttonText: Theme.text
+    palette.highlight: Theme.accent
+    palette.highlightedText: Theme.text
+    palette.placeholderText: Theme.textMuted
 
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
         spacing: 0
 
-        SideNav {
-            id: sideNav
-            Layout.preferredWidth: 220
-            Layout.fillHeight: true
+        TopBar {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 64
         }
 
-        StackLayout {
+        RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            currentIndex: sideNav.currentIndex
+            spacing: 0
 
-            DashboardPage {}
-            PersonnelPage {}
-            PartsInventoryPage {}
-            VehicleSetupsPage {}
-            RaceSessionsPage {}
-            TelemetryRunsPage {}
+            SideNav {
+                id: sideNav
+                Layout.preferredWidth: 210
+                Layout.fillHeight: true
+            }
+
+            StackLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                currentIndex: sideNav.currentIndex
+
+                DashboardPage {}
+                TelemetryRunsPage {}
+                SensorsPage {}
+                VehicleSetupsPage {}
+                PartsInventoryPage {}
+                RaceSessionsPage {}
+                SettingsPage {}
+            }
         }
     }
 }
