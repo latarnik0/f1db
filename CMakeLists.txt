@@ -31,6 +31,7 @@ qt_add_executable(f1db
 
     src/QObjectControllers/InventoryController/InventoryController.cpp
     src/QObjectControllers/PersonnelController/PersonnelController.cpp
+    src/QObjectControllers/SessionController/SessionController.cpp
 )
 
 qt_policy(SET QTP0004 NEW)
