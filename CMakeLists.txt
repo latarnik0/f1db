@@ -30,6 +30,7 @@ qt_add_executable(f1db
     src/Mocks/MockReadings.cpp
 
     src/QObjectControllers/InventoryController/InventoryController.cpp
+    src/QObjectControllers/PersonnelController/PersonnelController.cpp
 )
 
 qt_policy(SET QTP0004 NEW)

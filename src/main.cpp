@@ -2,6 +2,7 @@
 #include "Logger/Logger.hpp"
 #include "DatabaseManager/DatabaseManager.hpp"
 #include "InventoryController/InventoryController.hpp"
+#include "PersonnelController/PersonnelController.hpp"
 #include <sqlite3.h>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -14,9 +15,11 @@ int main(int argc, char *argv[])
     DatabaseManager dbman("f1.db");
     QueryHandler qh(dbman.getConnection());
     InventoryController inventoryController(qh);
+    PersonnelController personnelController(qh);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("inventoryController", &inventoryController);
+    engine.rootContext()->setContextProperty("personnelController", &personnelController);
     engine.loadFromModule("F1DB", "Main");
 
     return f1db_app.exec();

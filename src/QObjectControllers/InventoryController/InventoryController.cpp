@@ -26,7 +26,8 @@ void InventoryController::refresh()
 
 bool InventoryController::addPart(const QString& partName, const QString& category)
 {
-    if (partName.trimmed().isEmpty() || category.trimmed().isEmpty()) {
+    if(partName.trimmed().isEmpty() || category.trimmed().isEmpty())
+    {
         setStatusMessage(QStringLiteral("Name and category required"));
         return false;
     }
@@ -35,11 +36,11 @@ bool InventoryController::addPart(const QString& partName, const QString& catego
         partName.trimmed().toStdString(),
         category.trimmed().toStdString());
 
-    if (newId < 0) {
+    if(newId < 0)
+    {
         setStatusMessage(QStringLiteral("Failed to add part"));
         return false;
     }
-
     refresh();
     setStatusMessage(QStringLiteral("Added part #%1").arg(newId));
     return true;
@@ -47,11 +48,11 @@ bool InventoryController::addPart(const QString& partName, const QString& catego
 
 bool InventoryController::removePart(int partId)
 {
-    if (!m_queryHandler.deletePart(partId)) {
+    if(!m_queryHandler.deletePart(partId))
+    {
         setStatusMessage(QStringLiteral("Failed to delete part #%1").arg(partId));
         return false;
     }
-
     refresh();
     setStatusMessage(QStringLiteral("Deleted part #%1").arg(partId));
     return true;
@@ -59,20 +60,21 @@ bool InventoryController::removePart(int partId)
 
 void InventoryController::filterByCategory(const QString& category)
 {
-    if (category.trimmed().isEmpty()) {
+    if(category.trimmed().isEmpty())
+    {
         refresh();
         return;
     }
-
     setParts(m_queryHandler.getPartByCategory(category.trimmed().toStdString()));
     setStatusMessage(QStringLiteral("Filter: %1 (%2)").arg(category).arg(m_parts.size()));
 }
 
 void InventoryController::setStatusMessage(const QString& message)
 {
-    if (m_statusMessage == message)
+    if(m_statusMessage == message)
+    {
         return;
-
+    }
     m_statusMessage = message;
     emit statusMessageChanged();
 }
@@ -82,13 +84,13 @@ void InventoryController::setParts(const std::vector<Part>& parts)
     m_parts.clear();
     m_parts.reserve(static_cast<int>(parts.size()));
 
-    for (const Part& part : parts) {
+    for(const Part& part : parts)
+    {
         m_parts.append(QVariantMap{
             {QStringLiteral("id"), part.id},
             {QStringLiteral("partName"), QString::fromStdString(part.partName)},
             {QStringLiteral("category"), QString::fromStdString(part.category)},
         });
     }
-
     emit partsChanged();
 }
