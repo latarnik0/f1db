@@ -4,6 +4,7 @@
 #include "InventoryController/InventoryController.hpp"
 #include "PersonnelController/PersonnelController.hpp"
 #include "SessionController/SessionController.hpp"
+#include "TelemetryController/TelemetryController.hpp"
 #include <sqlite3.h>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -18,11 +19,13 @@ int main(int argc, char *argv[])
     InventoryController inventoryController(qh);
     PersonnelController personnelController(qh);
     SessionController sessionController(qh);
+    TelemetryController telemetryController(qh);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("inventoryController", &inventoryController);
     engine.rootContext()->setContextProperty("personnelController", &personnelController);
     engine.rootContext()->setContextProperty("sessionController", &sessionController);
+    engine.rootContext()->setContextProperty("telemetryController", &telemetryController);
     engine.loadFromModule("F1DB", "Main");
 
     return f1db_app.exec();
