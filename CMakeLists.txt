@@ -28,6 +28,8 @@ qt_add_executable(f1db
     src/DAOs/TelemetryDAO.cpp
 
     src/Mocks/MockReadings.cpp
+
+    src/QObjectControllers/InventoryController/InventoryController.cpp
 )
 
 qt_policy(SET QTP0004 NEW)
