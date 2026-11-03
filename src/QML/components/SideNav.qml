@@ -10,10 +10,11 @@ Rectangle {
 
     readonly property var items: [
         "Dashboard",
-        "TelemetryRuns",
-        "Race Sessions",
+        "Personnel",
         "PartsInventory",
-        "VehicleSetups"
+        "VehicleSetups",
+        "Race Sessions",
+        "TelemetryRuns"
     ]
 
     ColumnLayout {

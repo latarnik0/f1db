@@ -45,10 +45,11 @@ qt_add_qml_module(f1db
         src/QML/Main.qml
         src/QML/components/SideNav.qml
         src/QML/pages/DashboardPage.qml
-        src/QML/pages/TelemetryRunsPage.qml
+        src/QML/pages/PersonnelPage.qml
         src/QML/pages/PartsInventoryPage.qml
-        src/QML/pages/RaceSessionsPage.qml
         src/QML/pages/VehicleSetupsPage.qml
+        src/QML/pages/RaceSessionsPage.qml
+        src/QML/pages/TelemetryRunsPage.qml
 )
 
 target_include_directories(f1db PRIVATE

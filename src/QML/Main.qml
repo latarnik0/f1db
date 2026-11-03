@@ -25,10 +25,11 @@ ApplicationWindow {
             currentIndex: sideNav.currentIndex
 
             DashboardPage {}
-            TelemetryRunsPage {}
-            RaceSessionsPage {}
+            PersonnelPage {}
             PartsInventoryPage {}
             VehicleSetupsPage {}
+            RaceSessionsPage {}
+            TelemetryRunsPage {}
         }
     }
 }
