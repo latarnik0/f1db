@@ -16,7 +16,7 @@ public:
     int addVehicle(const std::string& chassisCode);
     bool deleteVehicle(int vehicleId);
     std::vector<Vehicle> getAllVehicles();
-    bool setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness);
+    bool setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const std::string& suspensionStiffness);
     VehicleSetup getVehicleSetup(int vehicleId);
     bool installPartOnVehicle(int vehicleId, int partId);
     bool removePartFromVehicle(int vehicleId, int partId);

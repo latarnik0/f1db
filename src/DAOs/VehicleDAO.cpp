@@ -19,7 +19,7 @@ int VehicleDAO::addVehicle(const std::string& chassisCode)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
-            Logger::getInstance().log(INFO, "Entry added");
+            Logger::getInstance().log(INFO, "VEHICLE: Vehicle added");
         }
     }
     else
@@ -45,7 +45,7 @@ bool VehicleDAO::deleteVehicle(int vehicleId)
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
-                Logger::getInstance().log(INFO, "Entry deleted");
+                Logger::getInstance().log(INFO, "VEHICLE: Vehicle deleted");
             }
         }
     }
@@ -81,23 +81,24 @@ std::vector<Vehicle> VehicleDAO::getAllVehicles()
     return vehiclesList;
 }
 
-bool VehicleDAO::setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness)
+bool VehicleDAO::setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const std::string& suspensionStiffness)
 {
-    // INSERT OR REPLACE zadba o to, żeby zaktualizować wiersz, jeśli ustawienia dla tego bolidu już istnieją
-    const char* sql = "INSERT OR REPLACE INTO vehicle_setups (vehicle_id, aero_balance, suspension_stiffness) VALUES (?, ?, ?);";
+    const char* sql = "INSERT OR REPLACE INTO vehicle_setups (vehicle_id, front_wing_angle, rear_wing_angle, brake_bias, suspension_stiffness) VALUES (?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt;
     bool result = false;
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, vehicleId);
-        sqlite3_bind_double(stmt, 2, aeroBalance);
-        sqlite3_bind_text(stmt, 3, suspensionStiffness.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 2, frontWingAngle);
+        sqlite3_bind_double(stmt, 3, rearWingAngle);
+        sqlite3_bind_double(stmt, 4, brakeBias);
+        sqlite3_bind_text(stmt, 5, suspensionStiffness.c_str(), -1, SQLITE_TRANSIENT);
 
-        if(sqlite3_step(stmt) == SQLITE_DONE) 
+        if(sqlite3_step(stmt) == SQLITE_DONE)
         {
             result = true;
-            Logger::getInstance().log(INFO, "Setup added");
+            Logger::getInstance().log(INFO, "VEHICLE: Setup added");
         }
     }
     else
@@ -110,20 +111,22 @@ bool VehicleDAO::setVehicleSetup(int vehicleId, double aeroBalance, const std::s
 
 VehicleSetup VehicleDAO::getVehicleSetup(int vehicleId)
 {
-    const char* sql = "SELECT setup_id, vehicle_id, aero_balance, suspension_stiffness FROM vehicle_setups WHERE vehicle_id = ?;";
+    const char* sql = "SELECT setup_id, vehicle_id, front_wing_angle, rear_wing_angle, brake_bias, suspension_stiffness FROM vehicle_setups WHERE vehicle_id = ?;";
     sqlite3_stmt* stmt;
-    VehicleSetup vs;
+    VehicleSetup vs = {};
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, vehicleId);
 
-        if(sqlite3_step(stmt) == SQLITE_ROW) 
+        if(sqlite3_step(stmt) == SQLITE_ROW)
         {
             vs.id = sqlite3_column_int(stmt, 0);
             vs.vehicleId = sqlite3_column_int(stmt, 1);
-            vs.aeroBalance = sqlite3_column_double(stmt, 2);
-            vs.suspensionStiffness = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            vs.frontWingAngle = sqlite3_column_double(stmt, 2);
+            vs.rearWingAngle = sqlite3_column_double(stmt, 3);
+            vs.brakeBias = sqlite3_column_double(stmt, 4);
+            vs.suspensionStiffness = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
             sqlite3_finalize(stmt);
             Logger::getInstance().log(INFO, "Success");
             return vs;
@@ -139,7 +142,6 @@ VehicleSetup VehicleDAO::getVehicleSetup(int vehicleId)
 
 bool VehicleDAO::installPartOnVehicle(int vehicleId, int partId)
 {
-    // kolumna installed_at sama się wypełnia dzięki DEFAULT CURRENT_TIMESTAMP w schemacie bazy
     const char* sql = "INSERT INTO vehicle_parts (vehicle_id, part_id) VALUES (?, ?);";
     sqlite3_stmt* stmt;
     bool result = false;
@@ -152,7 +154,7 @@ bool VehicleDAO::installPartOnVehicle(int vehicleId, int partId)
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
             result = true;
-            Logger::getInstance().log(INFO, "Part installed");
+            Logger::getInstance().log(INFO, "VEHICLE: Part installed");
         }
     }
     else
@@ -179,7 +181,7 @@ bool VehicleDAO::removePartFromVehicle(int vehicleId, int partId)
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
-                Logger::getInstance().log(INFO, "Part removed");
+                Logger::getInstance().log(INFO, "VEHICLE: Part removed");
             }
         }
     }
@@ -193,21 +195,22 @@ bool VehicleDAO::removePartFromVehicle(int vehicleId, int partId)
 
 std::vector<InstalledPart> VehicleDAO::getVehicleWithInstalledParts(int vehicleId)
 {
-    const char* sql = "SELECT p.part_id, p.part_name, p.category, vp.installed_at FROM vehicle_parts vp JOIN parts_inventory p ON vp.part_id = p.part_id WHERE vp.vehicle_id = ?;";
+    const char* sql = "SELECT p.part_id, p.part_name, p.category, vp.installed_at, p.wear_percent FROM vehicle_parts vp JOIN parts_inventory p ON vp.part_id = p.part_id WHERE vp.vehicle_id = ?;";
     sqlite3_stmt* stmt;
     std::vector<InstalledPart> installedPartsList = {};
 
-    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, vehicleId);
 
-        while(sqlite3_step(stmt) == SQLITE_ROW) 
+        while(sqlite3_step(stmt) == SQLITE_ROW)
         {
             InstalledPart ip;
             ip.partId = sqlite3_column_int(stmt, 0);
             ip.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             ip.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
             ip.installedAt = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            ip.wearPercent = sqlite3_column_double(stmt, 4);
             installedPartsList.push_back(ip);
         }
     }

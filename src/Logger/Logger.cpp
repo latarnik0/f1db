@@ -5,7 +5,7 @@ Logger::Logger(const std::string& filename)
     logFile.open(filename, std::ios::app);
     if (!logFile.is_open()) 
     {
-        std::cerr << "Error opening log file." << std::endl;
+        std::cerr << "LOGGER: Error opening log file." << std::endl;
     }
 }
 
@@ -31,7 +31,7 @@ void Logger::log(LogLevel level, const std::string& message)
 
     std::ostringstream logEntry;
     logEntry << "[" << timestamp << "] "
-            << levelToString(level) << ": " << message
+            << "[" << levelToString(level) << "] " << message
             << std::endl;
 
     std::cout << logEntry.str();

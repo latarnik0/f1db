@@ -22,10 +22,12 @@ int PersonnelDAO::addDriver(const std::string& firstName, const std::string& las
         sqlite3_bind_text(stmt, 1, firstName.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, lastName.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 3, experienceLvl);
-        sqlite3_step(stmt);
+        
+        // Poprawiono: usunięto podwójne wywołanie sqlite3_step
         if (sqlite3_step(stmt) == SQLITE_DONE) 
         {
             newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "PERSONNEL: Driver added");
         }
     }
     else
@@ -106,6 +108,7 @@ bool PersonnelDAO::updateDriverExperience(const int& driverId, const int& newLvl
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
+                Logger::getInstance().log(INFO, "PERSONNEL: Driver's experience updated");
             }
         }
     }
@@ -132,6 +135,7 @@ bool PersonnelDAO::deleteDriver(const int& driverId)
             if(sqlite3_changes(db) > 0)
             {
                 success = true;
+                Logger::getInstance().log(INFO, "PERSONNEL: Driver deleted");
             }
         }
     }
@@ -143,9 +147,89 @@ bool PersonnelDAO::deleteDriver(const int& driverId)
     return success;
 }
 
+std::vector<Driver> PersonnelDAO::getDriverByLastName(const std::string& lastName)
+{
+    const char* sql = "SELECT driver_id, first_name, last_name, experience_lvl FROM drivers WHERE last_name = ?;";
+    sqlite3_stmt* stmt;
+    std::vector<Driver> driversList;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, lastName.c_str(), -1, SQLITE_TRANSIENT);
+        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            Driver d;
+            d.id = sqlite3_column_int(stmt, 0);
+            d.firstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            d.lastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            d.experienceLvl = sqlite3_column_int(stmt, 3);
+            driversList.push_back(d);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return driversList;
+}
+
+std::vector<Driver> PersonnelDAO::getDriverByExpLvl(const int& experienceLvl)
+{
+    const char* sql = "SELECT driver_id, first_name, last_name, experience_lvl FROM drivers WHERE experience_lvl = ?;";
+    sqlite3_stmt* stmt;
+    std::vector<Driver> driversList;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_int(stmt, 1, experienceLvl);
+        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            Driver d;
+            d.id = sqlite3_column_int(stmt, 0);
+            d.firstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            d.lastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            d.experienceLvl = sqlite3_column_int(stmt, 3);
+            driversList.push_back(d);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return driversList;
+}
+
 // ==================
 // Engineers
 // ==================
+int PersonnelDAO::addEngineer(const std::string& firstName, const std::string& lastName, const std::string& division)
+{
+    const char* sql = "INSERT INTO engineers (first_name, last_name, division) VALUES (?, ?, ?);";
+    sqlite3_stmt* stmt;
+    int newId = -1;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, firstName.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, lastName.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, division.c_str(), -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) == SQLITE_DONE) 
+        {
+            newId = sqlite3_last_insert_rowid(db);
+            Logger::getInstance().log(INFO, "PERSONNEL: Engineer added");
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return newId;
+}
+
 Engineer PersonnelDAO::getEngineerById(const int& engineerId)
 {
     const char* sql = "SELECT engineer_id, first_name, last_name, division FROM engineers WHERE engineer_id = ?;";
@@ -216,6 +300,7 @@ bool PersonnelDAO::deleteEngineer(const int& engineerId)
             if(sqlite3_changes(db) > 0)
             {
                 result = true;
+                Logger::getInstance().log(INFO, "PERSONNEL: Engineer deleted");
             }
         }
     }
@@ -227,3 +312,56 @@ bool PersonnelDAO::deleteEngineer(const int& engineerId)
     return result;
 }
 
+std::vector<Engineer> PersonnelDAO::getEngineerByLastName(const std::string& lastName)
+{
+    const char* sql = "SELECT engineer_id, first_name, last_name, division FROM engineers WHERE last_name = ?;";
+    sqlite3_stmt* stmt;
+    std::vector<Engineer> engineersList;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, lastName.c_str(), -1, SQLITE_TRANSIENT);
+        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            Engineer e;
+            e.id = sqlite3_column_int(stmt, 0);
+            e.firstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            e.lastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            e.division = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            engineersList.push_back(e);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return engineersList;
+}
+
+std::vector<Engineer> PersonnelDAO::getEngineerByDivision(const std::string& division)
+{
+    const char* sql = "SELECT engineer_id, first_name, last_name, division FROM engineers WHERE division = ?;";
+    sqlite3_stmt* stmt;
+    std::vector<Engineer> engineersList;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, division.c_str(), -1, SQLITE_TRANSIENT);
+        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            Engineer e;
+            e.id = sqlite3_column_int(stmt, 0);
+            e.firstName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            e.lastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            e.division = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            engineersList.push_back(e);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return engineersList;
+}

@@ -1,7 +1,7 @@
 #pragma once
-#include <algorithm>
 #include <string>
 #include <vector>
+#include "Models/Models.hpp"
 
 enum SENSOR
 {
@@ -11,7 +11,7 @@ enum SENSOR
     IR = 4
 };
 
-struct SensorReading
+struct MockSensorReading
 {
     int runId;
     int sensorId;
@@ -24,10 +24,12 @@ class MockReadings
 public:
     MockReadings();
     ~MockReadings();
-    
-    SENSOR s;
-    SensorReading sr;
 
-    std::vector<SensorReading> generateMockReadings(int sensorId, double minVal, double maxVal, int numberOfReadings = 5000);
-    std::vector<std::vector<SensorReading>> prepareMockReadings();
+    static SENSOR waveformFromName(const std::string& name);
+    std::vector<MockSensorReading> generateMockReadings(int dbSensorId,
+                                                        SENSOR waveform,
+                                                        double minVal,
+                                                        double maxVal,
+                                                        int numberOfReadings = 2000);
+    std::vector<std::vector<MockSensorReading>> prepareMockReadings(const std::vector<Sensor>& sensors);
 };

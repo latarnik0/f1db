@@ -18,9 +18,14 @@ QueryHandler::~QueryHandler(){}
 // =====================================================================
 //                             InventoryDAO
 // =====================================================================
-int QueryHandler::addPart(const std::string& partName, const std::string& category)
+int QueryHandler::addPart(const std::string& partName, const std::string& category, double wearPercent)
 {
-    return inventory.addPart(partName, category);
+    return inventory.addPart(partName, category, wearPercent);
+}
+
+bool QueryHandler::updatePartWear(int partId, double wearPercent)
+{
+    return inventory.updatePartWear(partId, wearPercent);
 }
 
 bool QueryHandler::deletePart(const int& partId)
@@ -133,9 +138,19 @@ std::vector<Sensor> QueryHandler::getAllSensors()
     return telemetry.getAllSensors();
 }
 
+std::vector<TelemetryRun> QueryHandler::getAllRuns()
+{
+    return telemetry.getAllRuns();
+}
+
 int QueryHandler::startTelemetryRun(int sessionId, int vehicleId, int driverId)
 {
     return telemetry.startTelemetryRun(sessionId, vehicleId, driverId);
+}
+
+bool QueryHandler::setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS)
+{
+    return telemetry.setRunSectors(runId, sector1S, sector2S, sector3S, lapTimeS);
 }
 
 bool QueryHandler::assignEngineerToRun(int runId, int engineerId)
@@ -143,9 +158,14 @@ bool QueryHandler::assignEngineerToRun(int runId, int engineerId)
     return telemetry.assignEngineerToRun(runId, engineerId);
 }
 
-void QueryHandler::insertMockReadings(std::vector<std::vector<SensorReading>>& sensorData)
+void QueryHandler::clearReadingsForRun(int runId)
 {
-    return telemetry.insertBatch(sensorData);
+    telemetry.clearReadingsForRun(runId);
+}
+
+void QueryHandler::insertMockReadings(std::vector<std::vector<MockSensorReading>>& sensorData)
+{
+    telemetry.insertBatch(sensorData);
 }
 
 // analytical data
@@ -188,9 +208,9 @@ std::vector<Track> QueryHandler::getAllTracks()
     return session.getAllTracks();
 }
 
-int QueryHandler::startSession(int trackId)
+int QueryHandler::startSession(int trackId, const std::string& weatherCondition, double temperatureC)
 {
-    return session.startSession(trackId);
+    return session.startSession(trackId, weatherCondition, temperatureC);
 }
 
 std::vector<RaceSession> QueryHandler::getAllSessions()
@@ -222,9 +242,9 @@ std::vector<Vehicle> QueryHandler::getAllVehicles()
     return vehicle.getAllVehicles();
 }
 
-bool QueryHandler::setVehicleSetup(int vehicleId, double aeroBalance, const std::string& suspensionStiffness)
+bool QueryHandler::setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const std::string& suspensionStiffness)
 {
-    return vehicle.setVehicleSetup(vehicleId, aeroBalance, suspensionStiffness);
+    return vehicle.setVehicleSetup(vehicleId, frontWingAngle, rearWingAngle, brakeBias, suspensionStiffness);
 }
 
 VehicleSetup QueryHandler::getVehicleSetup(int vehicleId)
