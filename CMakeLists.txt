@@ -49,13 +49,19 @@ qt_add_qml_module(f1db
         src/QML/Main.qml
         src/QML/components/SideNav.qml
         src/QML/components/TopBar.qml
+        src/QML/components/ContextBar.qml
         src/QML/components/Card.qml
+        src/QML/components/Field.qml
+        src/QML/components/AccentButton.qml
+        src/QML/components/Select.qml
         src/QML/pages/DashboardPage.qml
+        src/QML/pages/ChartsPage.qml
         src/QML/pages/TelemetryRunsPage.qml
         src/QML/pages/SensorsPage.qml
         src/QML/pages/VehicleSetupsPage.qml
         src/QML/pages/PartsInventoryPage.qml
         src/QML/pages/RaceSessionsPage.qml
+        src/QML/pages/PersonnelPage.qml
         src/QML/pages/SettingsPage.qml
 )
 

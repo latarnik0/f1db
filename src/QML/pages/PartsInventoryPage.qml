@@ -4,13 +4,16 @@ import QtQuick.Layouts
 import F1DB
 
 Item {
+    id: page
+    property int selectedPartId: 0
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
         spacing: 12
 
         Label {
-            text: "Inventory & Parts"
+            text: "Parts"
             color: Theme.text
             font.pixelSize: 24
             font.bold: true
@@ -18,31 +21,30 @@ Item {
 
         Label {
             text: inventoryController.statusMessage
-            opacity: 0.7
+            color: Theme.textMuted
+            Layout.fillWidth: true
+            elide: Text.ElideRight
         }
 
         RowLayout {
-            TextField {
+            Layout.fillWidth: true
+            Field {
                 id: nameField
                 placeholderText: "Part name"
                 Layout.fillWidth: true
             }
-            TextField {
+            Field {
                 id: categoryField
                 placeholderText: "Category"
-                Layout.preferredWidth: 180
+                Layout.preferredWidth: 160
             }
-            TextField {
+            Field {
                 id: wearField
                 placeholderText: "Wear %"
-                Layout.preferredWidth: 90
-                validator: DoubleValidator {
-                    bottom: 0
-                    top: 100
-                    notation: DoubleValidator.StandardNotation
-                }
+                Layout.preferredWidth: 80
+                validator: DoubleValidator { bottom: 0; top: 100; notation: DoubleValidator.StandardNotation }
             }
-            Button {
+            AccentButton {
                 text: "Add"
                 onClicked: {
                     var wear = wearField.text.trim() === "" ? 0 : parseFloat(wearField.text)
@@ -53,34 +55,26 @@ Item {
                     }
                 }
             }
-            Button {
-                text: "Refresh"
-                onClicked: inventoryController.refresh()
-            }
         }
 
         RowLayout {
-            TextField {
-                id: wearPartIdField
-                placeholderText: "partId"
-                Layout.preferredWidth: 90
-                validator: IntValidator { bottom: 1 }
+            Layout.fillWidth: true
+            Label {
+                color: Theme.textMuted
+                text: page.selectedPartId > 0 ? "Selected part #" + page.selectedPartId : "Select a part to edit wear"
             }
-            TextField {
+            Item { Layout.fillWidth: true }
+            Field {
                 id: wearUpdateField
-                placeholderText: "Wear %"
-                Layout.preferredWidth: 90
-                validator: DoubleValidator {
-                    bottom: 0
-                    top: 100
-                    notation: DoubleValidator.StandardNotation
-                }
+                placeholderText: "New wear %"
+                Layout.preferredWidth: 110
+                validator: DoubleValidator { bottom: 0; top: 100; notation: DoubleValidator.StandardNotation }
             }
-            Button {
+            AccentButton {
                 text: "Update wear"
-                onClicked: inventoryController.updatePartWear(
-                    parseInt(wearPartIdField.text),
-                    parseFloat(wearUpdateField.text))
+                primary: false
+                enabled: page.selectedPartId > 0
+                onClicked: inventoryController.updatePartWear(page.selectedPartId, parseFloat(wearUpdateField.text))
             }
         }
 
@@ -89,30 +83,31 @@ Item {
             Layout.fillHeight: true
             clip: true
             model: inventoryController.parts
-
-            delegate: RowLayout {
+            delegate: Rectangle {
                 width: ListView.view.width
-                spacing: 12
-
-                Label {
-                    text: modelData.id
-                    Layout.preferredWidth: 40
+                height: 44
+                radius: 6
+                color: modelData.id === page.selectedPartId ? Theme.selection : "transparent"
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+                    Label { text: modelData.partName; color: Theme.text; Layout.fillWidth: true }
+                    Label { text: modelData.category; color: Theme.textMuted; Layout.preferredWidth: 140 }
+                    Label { text: modelData.wearPercent + "%"; color: Theme.accent; Layout.preferredWidth: 56 }
+                    AccentButton {
+                        text: "Delete"
+                        primary: false
+                        onClicked: inventoryController.removePart(modelData.id)
+                    }
                 }
-                Label {
-                    text: modelData.partName
-                    Layout.fillWidth: true
-                }
-                Label {
-                    text: modelData.category
-                    Layout.preferredWidth: 140
-                }
-                Label {
-                    text: modelData.wearPercent + "%"
-                    Layout.preferredWidth: 80
-                }
-                Button {
-                    text: "Delete"
-                    onClicked: inventoryController.removePart(modelData.id)
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.rightMargin: 80
+                    onClicked: {
+                        page.selectedPartId = modelData.id
+                        wearUpdateField.text = String(modelData.wearPercent)
+                    }
                 }
             }
         }

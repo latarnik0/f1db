@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 import F1DB
 
 Rectangle {
@@ -13,6 +14,16 @@ Rectangle {
     border.color: Theme.border
     border.width: 1
 
+    layer.enabled: true
+    layer.effect: MultiEffect {
+        shadowEnabled: true
+        shadowBlur: 0.35
+        shadowVerticalOffset: 6
+        shadowColor: Theme.shadow
+        shadowOpacity: 0.55
+        autoPaddingEnabled: true
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Theme.pad
@@ -23,7 +34,8 @@ Rectangle {
             text: root.title
             color: Theme.text
             font.pixelSize: 16
-            font.bold: true
+            font.weight: Font.Medium
+            font.letterSpacing: 0.4
             Layout.fillWidth: true
         }
 

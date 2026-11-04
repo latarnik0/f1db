@@ -138,6 +138,11 @@ std::vector<Sensor> QueryHandler::getAllSensors()
     return telemetry.getAllSensors();
 }
 
+std::vector<TelemetryRun> QueryHandler::getAllRuns()
+{
+    return telemetry.getAllRuns();
+}
+
 int QueryHandler::startTelemetryRun(int sessionId, int vehicleId, int driverId)
 {
     return telemetry.startTelemetryRun(sessionId, vehicleId, driverId);
@@ -153,9 +158,14 @@ bool QueryHandler::assignEngineerToRun(int runId, int engineerId)
     return telemetry.assignEngineerToRun(runId, engineerId);
 }
 
+void QueryHandler::clearReadingsForRun(int runId)
+{
+    telemetry.clearReadingsForRun(runId);
+}
+
 void QueryHandler::insertMockReadings(std::vector<std::vector<MockSensorReading>>& sensorData)
 {
-    return telemetry.insertBatch(sensorData);
+    telemetry.insertBatch(sensorData);
 }
 
 // analytical data

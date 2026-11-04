@@ -14,6 +14,11 @@ QVariantList TelemetryController::sensors() const
     return m_sensors;
 }
 
+QVariantList TelemetryController::runs() const
+{
+    return m_runs;
+}
+
 QVariantMap TelemetryController::selectedRunDetails() const
 {
     return m_selectedRunDetails;
@@ -42,11 +47,10 @@ QString TelemetryController::statusMessage() const
 void TelemetryController::refresh()
 {
     setSensors(m_queryHandler.getAllSensors());
-    setSelectedRunDetails({});
-    setRunEngineers({});
-    setTelemetryReadings({});
-    setSensorStatistics({});
-    setStatusMessage(QStringLiteral("Loaded %1 sensors").arg(m_sensors.size()));
+    setRuns(m_queryHandler.getAllRuns());
+    setStatusMessage(QStringLiteral("Loaded %1 sensors, %2 runs")
+                         .arg(m_sensors.size())
+                         .arg(m_runs.size()));
 }
 
 bool TelemetryController::addSensor(const QString& name, const QString& unit)
@@ -71,12 +75,12 @@ bool TelemetryController::addSensor(const QString& name, const QString& unit)
     return true;
 }
 
-bool TelemetryController::startTelemetryRun(int sessionId, int vehicleId, int driverId)
+int TelemetryController::startTelemetryRun(int sessionId, int vehicleId, int driverId)
 {
     if(sessionId <= 0 || vehicleId <= 0 || driverId <= 0)
     {
-        setStatusMessage(QStringLiteral("Session, vehicle and driver ids must be > 0"));
-        return false;
+        setStatusMessage(QStringLiteral("Select a session, vehicle and driver first"));
+        return -1;
     }
 
     const int newId = m_queryHandler.startTelemetryRun(sessionId, vehicleId, driverId);
@@ -84,10 +88,11 @@ bool TelemetryController::startTelemetryRun(int sessionId, int vehicleId, int dr
     if(newId < 0)
     {
         setStatusMessage(QStringLiteral("Failed to start telemetry run"));
-        return false;
+        return -1;
     }
-    setStatusMessage(QStringLiteral("Started telemetry run #%1").arg(newId));
-    return true;
+    setRuns(m_queryHandler.getAllRuns());
+    setStatusMessage(QStringLiteral("Started run #%1").arg(newId));
+    return newId;
 }
 
 bool TelemetryController::setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS)
@@ -146,8 +151,40 @@ bool TelemetryController::insertMockReadings(int runId)
         return false;
     }
 
+    std::vector<Sensor> sensors = m_queryHandler.getAllSensors();
+    auto hasWaveform = [&sensors](SENSOR waveform) {
+        for(const Sensor& sensor : sensors)
+        {
+            if(MockReadings::waveformFromName(sensor.name) == waveform)
+            {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if(!hasWaveform(PITOT))
+    {
+        m_queryHandler.addSensor("pitot", "km/h");
+    }
+    if(!hasWaveform(ACCEL))
+    {
+        m_queryHandler.addSensor("accel", "g");
+    }
+    if(!hasWaveform(TENSO))
+    {
+        m_queryHandler.addSensor("tenso", "N");
+    }
+    if(!hasWaveform(IR))
+    {
+        m_queryHandler.addSensor("ir", "C");
+    }
+
+    sensors = m_queryHandler.getAllSensors();
+    setSensors(sensors);
+
     MockReadings mock;
-    auto data = mock.prepareMockReadings();
+    auto data = mock.prepareMockReadings(sensors);
     for(auto& sensorVec : data)
     {
         for(auto& reading : sensorVec)
@@ -155,8 +192,12 @@ bool TelemetryController::insertMockReadings(int runId)
             reading.runId = runId;
         }
     }
+
+    m_queryHandler.clearReadingsForRun(runId);
     m_queryHandler.insertMockReadings(data);
-    setStatusMessage(QStringLiteral("Inserted mock readings for run #%1").arg(runId));
+    setStatusMessage(QStringLiteral("Replaced mock readings for run #%1 (%2 sensors)")
+                         .arg(runId)
+                         .arg(static_cast<int>(sensors.size())));
     return true;
 }
 
@@ -269,6 +310,34 @@ void TelemetryController::setSensors(const std::vector<Sensor>& sensors)
         });
     }
     emit sensorsChanged();
+}
+
+void TelemetryController::setRuns(const std::vector<TelemetryRun>& runs)
+{
+    m_runs.clear();
+    m_runs.reserve(static_cast<int>(runs.size()));
+
+    for(const TelemetryRun& run : runs)
+    {
+        const QString label = QStringLiteral("Run #%1 · %2 · %3")
+                                  .arg(run.id)
+                                  .arg(QString::fromStdString(run.chassisCode))
+                                  .arg(QString::fromStdString(run.driverName));
+        m_runs.append(QVariantMap{
+            {QStringLiteral("id"), run.id},
+            {QStringLiteral("sessionId"), run.sessionId},
+            {QStringLiteral("vehicleId"), run.vehicleId},
+            {QStringLiteral("driverId"), run.driverId},
+            {QStringLiteral("sector1S"), run.sector1S},
+            {QStringLiteral("sector2S"), run.sector2S},
+            {QStringLiteral("sector3S"), run.sector3S},
+            {QStringLiteral("lapTimeS"), run.lapTimeS},
+            {QStringLiteral("chassisCode"), QString::fromStdString(run.chassisCode)},
+            {QStringLiteral("driverName"), QString::fromStdString(run.driverName)},
+            {QStringLiteral("label"), label},
+        });
+    }
+    emit runsChanged();
 }
 
 void TelemetryController::setSelectedRunDetails(const QVariantMap& details)

@@ -21,54 +21,57 @@ Rectangle {
                 text: "F1DB"
                 color: Theme.text
                 font.pixelSize: 18
-                font.bold: true
+                font.weight: Font.Medium
+                font.letterSpacing: 1.1
             }
             Label {
                 text: "Formula 1 Database"
                 color: Theme.textMuted
                 font.pixelSize: 11
+                font.letterSpacing: 0.4
             }
         }
 
-        Rectangle {
-            width: 1
-            Layout.fillHeight: true
-            Layout.topMargin: 10
-            Layout.bottomMargin: 10
-            color: Theme.border
-        }
-
-        Label {
-            text: "DRIVER: " + appState.driverLabel
-            color: Theme.text
-            font.pixelSize: 12
-        }
-        Label {
-            text: "TRACK: " + appState.trackLabel
-            color: Theme.text
-            font.pixelSize: 12
-        }
-        Label {
-            text: "SESSION: " + appState.sessionLabel
-            color: Theme.text
-            font.pixelSize: 12
-            Layout.fillWidth: true
-            elide: Text.ElideRight
-        }
+        Item { Layout.fillWidth: true }
 
         RowLayout {
             spacing: 8
-            Rectangle {
-                width: 10
-                height: 10
-                radius: 5
-                color: appState.dbConnected ? Theme.success : Theme.accent
+            Item {
+                width: 16
+                height: 16
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 14
+                    height: 14
+                    radius: 7
+                    color: appState.dbConnected ? "#3322c55e" : "#33e10600"
+                }
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 8
+                    height: 8
+                    radius: 4
+                    color: appState.dbConnected ? Theme.success : Theme.accent
+                }
             }
             Label {
                 text: appState.dbConnected ? "SQLite: Connected" : "SQLite: Offline"
                 color: Theme.textMuted
                 font.pixelSize: 12
             }
+        }
+    }
+
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 1
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0.0; color: Theme.accent }
+            GradientStop { position: 0.55; color: "#66e10600" }
+            GradientStop { position: 1.0; color: "transparent" }
         }
     }
 }

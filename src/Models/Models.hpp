@@ -102,6 +102,8 @@ struct TelemetryRun
     double sector2S;
     double sector3S;
     double lapTimeS;
+    std::string chassisCode;
+    std::string driverName;
 };
 
 struct RunEngineer
