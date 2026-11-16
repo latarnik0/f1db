@@ -15,6 +15,15 @@ Item {
         suspensionField.text = String(s.suspensionStiffness)
     }
 
+    function formatDelta(value) {
+        if (value === undefined || value === null)
+            return "—"
+        var n = Number(value)
+        if (isNaN(n))
+            return "—"
+        return (n > 0 ? "+" : "") + n.toFixed(2)
+    }
+
     Connections {
         target: vehicleController
         function onSelectedSetupChanged() { fillSetup() }
@@ -59,6 +68,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.preferredHeight: 1
             spacing: 12
 
             Card {
@@ -188,7 +198,127 @@ Item {
                 }
             }
         }
+
+        Card {
+            title: "Compare setups"
+            Layout.fillWidth: true
+            Layout.preferredHeight: 220
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 8
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Label { text: "Run A"; color: Theme.textMuted }
+                    Select {
+                        id: runABox
+                        Layout.fillWidth: true
+                        model: telemetryController.runs
+                        textRole: "label"
+                        valueRole: "id"
+                    }
+
+                    Label { text: "Run B"; color: Theme.textMuted }
+                    Select {
+                        id: runBBox
+                        Layout.fillWidth: true
+                        model: telemetryController.runs
+                        textRole: "label"
+                        valueRole: "id"
+                    }
+
+                    AccentButton {
+                        text: "Compare"
+                        enabled: runABox.currentValue > 0 && runBBox.currentValue > 0
+                        onClicked: vehicleController.compareSetups(runABox.currentValue, runBBox.currentValue)
+                    }
+                }
+
+                Label {
+                    visible: vehicleController.comparisonMeta.validA === false
+                             || vehicleController.comparisonMeta.validB === false
+                    text: vehicleController.statusMessage
+                    color: Theme.accent
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    Label {
+                        text: "Parameter"
+                        color: Theme.textMuted
+                        font.bold: true
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        text: "A"
+                        color: Theme.textMuted
+                        font.bold: true
+                        Layout.preferredWidth: 90
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    Label {
+                        text: "B"
+                        color: Theme.textMuted
+                        font.bold: true
+                        Layout.preferredWidth: 90
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    Label {
+                        text: "Δ"
+                        color: Theme.textMuted
+                        font.bold: true
+                        Layout.preferredWidth: 90
+                        horizontalAlignment: Text.AlignRight
+                    }
+                }
+
+                ListView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    model: vehicleController.setupComparison
+                    delegate: RowLayout {
+                        width: ListView.view.width
+                        height: 28
+                        spacing: 8
+                        Label {
+                            text: modelData.parameter
+                            color: Theme.text
+                            Layout.fillWidth: true
+                        }
+                        Label {
+                            text: Number(modelData.valueA).toFixed(2)
+                            color: Theme.text
+                            Layout.preferredWidth: 90
+                            horizontalAlignment: Text.AlignRight
+                        }
+                        Label {
+                            text: Number(modelData.valueB).toFixed(2)
+                            color: Theme.text
+                            Layout.preferredWidth: 90
+                            horizontalAlignment: Text.AlignRight
+                        }
+                        Label {
+                            text: formatDelta(modelData.delta)
+                            color: Theme.accent
+                            Layout.preferredWidth: 90
+                            horizontalAlignment: Text.AlignRight
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    Component.onCompleted: fillSetup()
+    Component.onCompleted: {
+        fillSetup()
+        if (telemetryController.runs.length === 0)
+            telemetryController.refresh()
+    }
 }

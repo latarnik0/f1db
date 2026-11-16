@@ -18,6 +18,7 @@ public:
     std::vector<Vehicle> getAllVehicles();
     bool setRunSetup(int runId, double frontWingAngle, double rearWingAngle, double brakeBias, double suspensionStiffness);
     VehicleSetup getRunSetup(int runId);
+    SetupComparison compareRunSetups(int runIdA, int runIdB);
     bool installPartOnVehicle(int vehicleId, int partId);
     bool removePartFromVehicle(int vehicleId, int partId);
     std::vector<InstalledPart> getVehicleWithInstalledParts(int vehicleId);

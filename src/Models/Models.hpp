@@ -72,6 +72,25 @@ struct VehicleSetup
     double suspensionStiffness;
 };
 
+struct SetupParamDelta
+{
+    double valueA;
+    double valueB;
+    double delta;
+};
+
+struct SetupComparison
+{
+    int runIdA;
+    int runIdB;
+    bool validA;
+    bool validB;
+    SetupParamDelta frontWingAngle;
+    SetupParamDelta rearWingAngle;
+    SetupParamDelta brakeBias;
+    SetupParamDelta suspensionStiffness;
+};
+
 struct InstalledPart
 {
     int partId;

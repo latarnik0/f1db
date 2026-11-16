@@ -252,6 +252,11 @@ VehicleSetup QueryHandler::getRunSetup(int runId)
     return vehicle.getRunSetup(runId);
 }
 
+SetupComparison QueryHandler::compareRunSetups(int runIdA, int runIdB)
+{
+    return vehicle.compareRunSetups(runIdA, runIdB);
+}
+
 bool QueryHandler::installPartOnVehicle(int vehicleId, int partId)
 {
     return vehicle.installPartOnVehicle(vehicleId, partId);

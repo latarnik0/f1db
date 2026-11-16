@@ -23,6 +23,16 @@ QVariantList VehicleController::installedParts() const
     return m_installedParts;
 }
 
+QVariantList VehicleController::setupComparison() const
+{
+    return m_setupComparison;
+}
+
+QVariantMap VehicleController::comparisonMeta() const
+{
+    return m_comparisonMeta;
+}
+
 QString VehicleController::statusMessage() const
 {
     return m_statusMessage;
@@ -118,6 +128,65 @@ void VehicleController::loadSetup(int runId)
         {QStringLiteral("suspensionStiffness"), setup.suspensionStiffness},
     });
     setStatusMessage(QStringLiteral("Loaded setup for run #%1").arg(setup.runId));
+}
+
+void VehicleController::compareSetups(int runIdA, int runIdB)
+{
+    if(runIdA <= 0 || runIdB <= 0)
+    {
+        setSetupComparison({});
+        setComparisonMeta({});
+        setStatusMessage(QStringLiteral("Select two runs to compare"));
+        return;
+    }
+
+    const SetupComparison comparison = m_queryHandler.compareRunSetups(runIdA, runIdB);
+
+    setComparisonMeta(QVariantMap{
+        {QStringLiteral("runIdA"), comparison.runIdA},
+        {QStringLiteral("runIdB"), comparison.runIdB},
+        {QStringLiteral("validA"), comparison.validA},
+        {QStringLiteral("validB"), comparison.validB},
+    });
+
+    if(!comparison.validA || !comparison.validB)
+    {
+        setSetupComparison({});
+        if(!comparison.validA && !comparison.validB)
+        {
+            setStatusMessage(QStringLiteral("No setup for runs #%1 and #%2")
+                                 .arg(runIdA)
+                                 .arg(runIdB));
+        }
+        else if(!comparison.validA)
+        {
+            setStatusMessage(QStringLiteral("No setup for run #%1").arg(runIdA));
+        }
+        else
+        {
+            setStatusMessage(QStringLiteral("No setup for run #%1").arg(runIdB));
+        }
+        return;
+    }
+
+    auto row = [](const QString& parameter, const SetupParamDelta& param) {
+        return QVariantMap{
+            {QStringLiteral("parameter"), parameter},
+            {QStringLiteral("valueA"), param.valueA},
+            {QStringLiteral("valueB"), param.valueB},
+            {QStringLiteral("delta"), param.delta},
+        };
+    };
+
+    setSetupComparison(QVariantList{
+        row(QStringLiteral("Front wing °"), comparison.frontWingAngle),
+        row(QStringLiteral("Rear wing °"), comparison.rearWingAngle),
+        row(QStringLiteral("Brake bias %"), comparison.brakeBias),
+        row(QStringLiteral("Suspension"), comparison.suspensionStiffness),
+    });
+    setStatusMessage(QStringLiteral("Compared setups for runs #%1 and #%2")
+                         .arg(runIdA)
+                         .arg(runIdB));
 }
 
 bool VehicleController::installPart(int vehicleId, int partId)
@@ -226,4 +295,24 @@ void VehicleController::setInstalledParts(const std::vector<InstalledPart>& part
         });
     }
     emit installedPartsChanged();
+}
+
+void VehicleController::setSetupComparison(const QVariantList& rows)
+{
+    if(m_setupComparison == rows)
+    {
+        return;
+    }
+    m_setupComparison = rows;
+    emit setupComparisonChanged();
+}
+
+void VehicleController::setComparisonMeta(const QVariantMap& meta)
+{
+    if(m_comparisonMeta == meta)
+    {
+        return;
+    }
+    m_comparisonMeta = meta;
+    emit comparisonMetaChanged();
 }

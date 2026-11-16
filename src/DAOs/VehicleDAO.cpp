@@ -142,6 +142,42 @@ VehicleSetup VehicleDAO::getRunSetup(int runId)
     return vs;
 }
 
+SetupComparison VehicleDAO::compareRunSetups(int runIdA, int runIdB)
+{
+    SetupComparison comparison = {};
+    comparison.runIdA = runIdA;
+    comparison.runIdB = runIdB;
+
+    const VehicleSetup setupA = getRunSetup(runIdA);
+    const VehicleSetup setupB = getRunSetup(runIdB);
+
+    comparison.validA = setupA.id > 0 && setupA.runId > 0;
+    comparison.validB = setupB.id > 0 && setupB.runId > 0;
+
+    if(!comparison.validA || !comparison.validB)
+    {
+        return comparison;
+    }
+
+    comparison.frontWingAngle.valueA = setupA.frontWingAngle;
+    comparison.frontWingAngle.valueB = setupB.frontWingAngle;
+    comparison.frontWingAngle.delta = setupB.frontWingAngle - setupA.frontWingAngle;
+
+    comparison.rearWingAngle.valueA = setupA.rearWingAngle;
+    comparison.rearWingAngle.valueB = setupB.rearWingAngle;
+    comparison.rearWingAngle.delta = setupB.rearWingAngle - setupA.rearWingAngle;
+
+    comparison.brakeBias.valueA = setupA.brakeBias;
+    comparison.brakeBias.valueB = setupB.brakeBias;
+    comparison.brakeBias.delta = setupB.brakeBias - setupA.brakeBias;
+
+    comparison.suspensionStiffness.valueA = setupA.suspensionStiffness;
+    comparison.suspensionStiffness.valueB = setupB.suspensionStiffness;
+    comparison.suspensionStiffness.delta = setupB.suspensionStiffness - setupA.suspensionStiffness;
+
+    return comparison;
+}
+
 bool VehicleDAO::installPartOnVehicle(int vehicleId, int partId)
 {
     const char* sql = "INSERT INTO vehicle_parts (vehicle_id, part_id) VALUES (?, ?);";
