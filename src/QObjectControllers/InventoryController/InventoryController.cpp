@@ -24,11 +24,17 @@ void InventoryController::refresh()
     setStatusMessage(QStringLiteral("Loaded %1 parts").arg(m_parts.size()));
 }
 
-bool InventoryController::addPart(const QString& partName, const QString& category, double wearPercent)
+bool InventoryController::addPart(const QString& name, const QString& category, int stockQuantity, double wearPercent)
 {
-    if(partName.trimmed().isEmpty() || category.trimmed().isEmpty())
+    if(name.trimmed().isEmpty() || category.trimmed().isEmpty())
     {
         setStatusMessage(QStringLiteral("Name and category required"));
+        return false;
+    }
+
+    if(stockQuantity < 0)
+    {
+        setStatusMessage(QStringLiteral("Stock must be >= 0"));
         return false;
     }
 
@@ -39,8 +45,9 @@ bool InventoryController::addPart(const QString& partName, const QString& catego
     }
 
     const int newId = m_queryHandler.addPart(
-        partName.trimmed().toStdString(),
+        name.trimmed().toStdString(),
         category.trimmed().toStdString(),
+        stockQuantity,
         wearPercent);
 
     if(newId < 0)
@@ -119,8 +126,9 @@ void InventoryController::setParts(const std::vector<Part>& parts)
     {
         m_parts.append(QVariantMap{
             {QStringLiteral("id"), part.id},
-            {QStringLiteral("partName"), QString::fromStdString(part.partName)},
+            {QStringLiteral("name"), QString::fromStdString(part.name)},
             {QStringLiteral("category"), QString::fromStdString(part.category)},
+            {QStringLiteral("stockQuantity"), part.stockQuantity},
             {QStringLiteral("wearPercent"), part.wearPercent},
         });
     }

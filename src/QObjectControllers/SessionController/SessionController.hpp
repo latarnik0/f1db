@@ -23,9 +23,9 @@ public:
     QString statusMessage() const;
 
     Q_INVOKABLE void refresh();
-    Q_INVOKABLE bool addTrack(const QString& name, double lengthKm);
+    Q_INVOKABLE bool addTrack(const QString& name, const QString& location);
     Q_INVOKABLE bool removeTrack(int trackId);
-    Q_INVOKABLE bool startSession(int trackId, const QString& weatherCondition, double temperatureC);
+    Q_INVOKABLE bool startSession(int trackId, const QString& sessionType, const QString& weather);
     Q_INVOKABLE void loadSessionDetails(int sessionId);
 
 signals:

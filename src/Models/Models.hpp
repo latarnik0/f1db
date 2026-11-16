@@ -9,7 +9,7 @@ struct Track
 {
     int id;
     std::string name;
-    double lengthKm;
+    std::string location;
 };
 
 struct Driver
@@ -43,13 +43,15 @@ struct Vehicle
 {
     int id;
     std::string chassisCode;
+    int driverId;
 };
 
 struct Part
 {
     int id;
-    std::string partName;
+    std::string name;
     std::string category;
+    int stockQuantity;
     double wearPercent;
 };
 
@@ -63,17 +65,17 @@ struct VehiclePart
 struct VehicleSetup
 {
     int id;
-    int vehicleId;
+    int runId;
     double frontWingAngle;
     double rearWingAngle;
     double brakeBias;
-    std::string suspensionStiffness;
+    double suspensionStiffness;
 };
 
 struct InstalledPart
 {
     int partId;
-    std::string partName;
+    std::string name;
     std::string category;
     std::string installedAt;
     double wearPercent;
@@ -87,9 +89,9 @@ struct RaceSession
 {
     int id;
     int trackId;
+    std::string sessionType;
     std::string sessionDate;
-    std::string weatherCondition;
-    double temperatureC;
+    std::string weather;
 };
 
 struct TelemetryRun
@@ -114,9 +116,10 @@ struct RunEngineer
 
 struct SensorReading
 {
+    int readingId;
     int runId;
     int sensorId;
-    std::string recordedAt;
+    double timestamp;
     double value;
 };
 
@@ -126,9 +129,9 @@ struct SessionDetails
     std::string sessionDate;
     int trackId;
     std::string trackName;
-    double trackLengthKm;
-    std::string weatherCondition;
-    double temperatureC;
+    std::string trackLocation;
+    std::string sessionType;
+    std::string weather;
 };
 
 struct RunDetails

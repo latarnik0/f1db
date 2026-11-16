@@ -59,12 +59,12 @@ std::vector<Sensor> TelemetryDAO::getAllSensors()
 std::vector<TelemetryRun> TelemetryDAO::getAllRuns()
 {
     const char* sql =
-        "SELECT tr.run_id, tr.session_id, tr.vehicle_id, tr.driver_id, "
-        "tr.sector1_s, tr.sector2_s, tr.sector3_s, tr.lap_time_s, "
+        "SELECT tr.run_id, tr.session_id, tr.vehicle_id, v.driver_id, "
+        "tr.sector_1, tr.sector_2, tr.sector_3, tr.lap_time, "
         "v.chassis_code, d.first_name, d.last_name "
         "FROM telemetry_runs tr "
-        "LEFT JOIN vehicles v ON tr.vehicle_id = v.vehicle_id "
-        "LEFT JOIN drivers d ON tr.driver_id = d.driver_id "
+        "JOIN vehicles v ON tr.vehicle_id = v.vehicle_id "
+        "JOIN drivers d ON v.driver_id = d.driver_id "
         "ORDER BY tr.run_id DESC;";
 
     sqlite3_stmt* stmt;
@@ -101,9 +101,9 @@ std::vector<TelemetryRun> TelemetryDAO::getAllRuns()
     return runs;
 }
 
-int TelemetryDAO::startTelemetryRun(int sessionId, int vehicleId, int driverId)
+int TelemetryDAO::startTelemetryRun(int sessionId, int vehicleId)
 {
-    const char* sql = "INSERT INTO telemetry_runs (session_id, vehicle_id, driver_id) VALUES (?, ?, ?);";
+    const char* sql = "INSERT INTO telemetry_runs (session_id, vehicle_id) VALUES (?, ?);";
     sqlite3_stmt* stmt;
     int newId = -1;
 
@@ -111,7 +111,6 @@ int TelemetryDAO::startTelemetryRun(int sessionId, int vehicleId, int driverId)
     {
         sqlite3_bind_int(stmt, 1, sessionId);
         sqlite3_bind_int(stmt, 2, vehicleId);
-        sqlite3_bind_int(stmt, 3, driverId);
 
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
@@ -129,7 +128,7 @@ int TelemetryDAO::startTelemetryRun(int sessionId, int vehicleId, int driverId)
 
 bool TelemetryDAO::setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS)
 {
-    const char* sql = "UPDATE telemetry_runs SET sector1_s = ?, sector2_s = ?, sector3_s = ?, lap_time_s = ? WHERE run_id = ?;";
+    const char* sql = "UPDATE telemetry_runs SET sector_1 = ?, sector_2 = ?, sector_3 = ?, lap_time = ? WHERE run_id = ?;";
     sqlite3_stmt* stmt;
     bool result = false;
 
@@ -208,7 +207,7 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<MockSensorReading>>& sens
     char* errorMessage = nullptr;
     sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &errorMessage);
 
-    const char* sql = "INSERT INTO sensor_readings (run_id, sensor_id, recorded_at, value) VALUES (?, ?, ?, ?);";
+    const char* sql = "INSERT INTO sensor_readings (run_id, sensor_id, timestamp, value) VALUES (?, ?, ?, ?);";
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
 
@@ -218,7 +217,7 @@ void TelemetryDAO::insertBatch(std::vector<std::vector<MockSensorReading>>& sens
         {
             sqlite3_bind_int(stmt, 1, reading.runId);
             sqlite3_bind_int(stmt, 2, reading.sensorId);
-            sqlite3_bind_text(stmt, 3, reading.recordedAt.c_str(), -1, SQLITE_TRANSIENT); 
+            sqlite3_bind_double(stmt, 3, reading.timestamp); 
             sqlite3_bind_double(stmt, 4, reading.value);
             sqlite3_step(stmt);
             sqlite3_reset(stmt);
@@ -233,11 +232,11 @@ RunDetails TelemetryDAO::getRunDetails(int runId)
 {
     const char* sql =
         "SELECT tr.run_id, rs.session_date, v.chassis_code, d.first_name, d.last_name, "
-        "tr.sector1_s, tr.sector2_s, tr.sector3_s, tr.lap_time_s "
+        "tr.sector_1, tr.sector_2, tr.sector_3, tr.lap_time "
         "FROM telemetry_runs tr "
         "JOIN race_sessions rs ON tr.session_id = rs.session_id "
         "JOIN vehicles v ON tr.vehicle_id = v.vehicle_id "
-        "JOIN drivers d ON tr.driver_id = d.driver_id "
+        "JOIN drivers d ON v.driver_id = d.driver_id "
         "WHERE tr.run_id = ?;";
 
     sqlite3_stmt* stmt;
@@ -306,7 +305,7 @@ std::vector<Engineer> TelemetryDAO::getEngineersForRun(int runId)
 
 std::vector<SensorReading> TelemetryDAO::getRunTelemetry(int runId, int sensorId)
 {
-    const char* sql = "SELECT recorded_at, value FROM sensor_readings WHERE run_id = ? AND sensor_id = ? ORDER BY recorded_at ASC, rowid ASC;";
+    const char* sql = "SELECT reading_id, timestamp, value FROM sensor_readings WHERE run_id = ? AND sensor_id = ? ORDER BY timestamp ASC;";
     sqlite3_stmt* stmt;
     std::vector<SensorReading> readings;
 
@@ -318,10 +317,11 @@ std::vector<SensorReading> TelemetryDAO::getRunTelemetry(int runId, int sensorId
         while(sqlite3_step(stmt) == SQLITE_ROW) 
         {
             SensorReading sr;
+            sr.readingId = sqlite3_column_int(stmt, 0);
             sr.runId = runId;       
             sr.sensorId = sensorId; 
-            sr.recordedAt = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-            sr.value = sqlite3_column_double(stmt, 1);
+            sr.timestamp = sqlite3_column_double(stmt, 1);
+            sr.value = sqlite3_column_double(stmt, 2);
             readings.push_back(sr);
         }
     }

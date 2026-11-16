@@ -18,9 +18,9 @@ QueryHandler::~QueryHandler(){}
 // =====================================================================
 //                             InventoryDAO
 // =====================================================================
-int QueryHandler::addPart(const std::string& partName, const std::string& category, double wearPercent)
+int QueryHandler::addPart(const std::string& name, const std::string& category, int stockQuantity, double wearPercent)
 {
-    return inventory.addPart(partName, category, wearPercent);
+    return inventory.addPart(name, category, stockQuantity, wearPercent);
 }
 
 bool QueryHandler::updatePartWear(int partId, double wearPercent)
@@ -143,9 +143,9 @@ std::vector<TelemetryRun> QueryHandler::getAllRuns()
     return telemetry.getAllRuns();
 }
 
-int QueryHandler::startTelemetryRun(int sessionId, int vehicleId, int driverId)
+int QueryHandler::startTelemetryRun(int sessionId, int vehicleId)
 {
-    return telemetry.startTelemetryRun(sessionId, vehicleId, driverId);
+    return telemetry.startTelemetryRun(sessionId, vehicleId);
 }
 
 bool QueryHandler::setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS)
@@ -193,9 +193,9 @@ SensorStatistics QueryHandler::getSensorStatistics(int runId, int sensorId)
 // =====================================================================
 //                             SessionDAO
 // =====================================================================
-int QueryHandler::addTrack(const std::string& name, double lengthKm)
+int QueryHandler::addTrack(const std::string& name, const std::string& location)
 {
-    return session.addTrack(name, lengthKm);
+    return session.addTrack(name, location);
 }    
 
 bool QueryHandler::deleteTrack(int trackId)
@@ -208,9 +208,9 @@ std::vector<Track> QueryHandler::getAllTracks()
     return session.getAllTracks();
 }
 
-int QueryHandler::startSession(int trackId, const std::string& weatherCondition, double temperatureC)
+int QueryHandler::startSession(int trackId, const std::string& sessionType, const std::string& weather)
 {
-    return session.startSession(trackId, weatherCondition, temperatureC);
+    return session.startSession(trackId, sessionType, weather);
 }
 
 std::vector<RaceSession> QueryHandler::getAllSessions()
@@ -227,9 +227,9 @@ SessionDetails QueryHandler::getSessionDetails(int sessionId)
 // =====================================================================
 //                             VehicleDAO
 // =====================================================================
-int QueryHandler::addVehicle(const std::string& chassisCode)
+int QueryHandler::addVehicle(const std::string& chassisCode, int driverId)
 {
-    return vehicle.addVehicle(chassisCode);
+    return vehicle.addVehicle(chassisCode, driverId);
 }
 
 bool QueryHandler::deleteVehicle(int vehicleId)
@@ -242,14 +242,14 @@ std::vector<Vehicle> QueryHandler::getAllVehicles()
     return vehicle.getAllVehicles();
 }
 
-bool QueryHandler::setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const std::string& suspensionStiffness)
+bool QueryHandler::setRunSetup(int runId, double frontWingAngle, double rearWingAngle, double brakeBias, double suspensionStiffness)
 {
-    return vehicle.setVehicleSetup(vehicleId, frontWingAngle, rearWingAngle, brakeBias, suspensionStiffness);
+    return vehicle.setRunSetup(runId, frontWingAngle, rearWingAngle, brakeBias, suspensionStiffness);
 }
 
-VehicleSetup QueryHandler::getVehicleSetup(int vehicleId)
+VehicleSetup QueryHandler::getRunSetup(int runId)
 {
-    return vehicle.getVehicleSetup(vehicleId);
+    return vehicle.getRunSetup(runId);
 }
 
 bool QueryHandler::installPartOnVehicle(int vehicleId, int partId)

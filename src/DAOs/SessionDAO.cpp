@@ -5,16 +5,16 @@
 SessionDAO::SessionDAO(sqlite3* db_connection) : db(db_connection) {}
 SessionDAO::~SessionDAO() {}
 
-int SessionDAO::addTrack(const std::string& name, double lengthKm)
+int SessionDAO::addTrack(const std::string& name, const std::string& location)
 {
-    const char* sql = "INSERT INTO tracks (name, length_km) VALUES (?, ?);";
+    const char* sql = "INSERT INTO tracks (name, location) VALUES (?, ?);";
     sqlite3_stmt* stmt;
     int newId = -1;
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
     {
         sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_double(stmt, 2, lengthKm);
+        sqlite3_bind_text(stmt, 2, location.c_str(), -1, SQLITE_TRANSIENT);
 
         if(sqlite3_step(stmt) == SQLITE_DONE) 
         {
@@ -32,7 +32,7 @@ int SessionDAO::addTrack(const std::string& name, double lengthKm)
 
 std::vector<Track> SessionDAO::getAllTracks()
 {
-    const char* sql = "SELECT track_id, name, length_km FROM tracks;";
+    const char* sql = "SELECT track_id, name, location FROM tracks;";
     sqlite3_stmt* stmt;
     std::vector<Track> tracksList;
 
@@ -43,7 +43,8 @@ std::vector<Track> SessionDAO::getAllTracks()
             Track t;
             t.id = sqlite3_column_int(stmt, 0);
             t.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-            t.lengthKm = sqlite3_column_double(stmt, 2);
+            const char* location = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            t.location = location != nullptr ? location : "";
             tracksList.push_back(t);
         }
     }
@@ -82,17 +83,17 @@ bool SessionDAO::deleteTrack(int trackId)
     return result;
 }
 
-int SessionDAO::startSession(int trackId, const std::string& weatherCondition, double temperatureC)
+int SessionDAO::startSession(int trackId, const std::string& sessionType, const std::string& weather)
 {
-    const char* sql = "INSERT INTO race_sessions (track_id, weather_condition, temperature_c) VALUES (?, ?, ?);";
+    const char* sql = "INSERT INTO race_sessions (track_id, session_type, weather) VALUES (?, ?, ?);";
     sqlite3_stmt* stmt;
     int newId = -1;
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, trackId);
-        sqlite3_bind_text(stmt, 2, weatherCondition.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_double(stmt, 3, temperatureC);
+        sqlite3_bind_text(stmt, 2, sessionType.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, weather.c_str(), -1, SQLITE_TRANSIENT);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
         {
@@ -110,7 +111,7 @@ int SessionDAO::startSession(int trackId, const std::string& weatherCondition, d
 
 std::vector<RaceSession> SessionDAO::getAllSessions()
 {
-    const char* sql = "SELECT session_id, track_id, session_date, weather_condition, temperature_c FROM race_sessions;";
+    const char* sql = "SELECT session_id, track_id, session_type, session_date, weather FROM race_sessions;";
     sqlite3_stmt* stmt;
     std::vector<RaceSession> sessionsList;
 
@@ -121,10 +122,12 @@ std::vector<RaceSession> SessionDAO::getAllSessions()
             RaceSession rs;
             rs.id = sqlite3_column_int(stmt, 0);
             rs.trackId = sqlite3_column_int(stmt, 1);
-            rs.sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-            const char* weather = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-            rs.weatherCondition = weather != nullptr ? weather : "";
-            rs.temperatureC = sqlite3_column_double(stmt, 4);
+            const char* sessionType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            rs.sessionType = sessionType != nullptr ? sessionType : "";
+            const char* sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            rs.sessionDate = sessionDate != nullptr ? sessionDate : "";
+            const char* weather = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+            rs.weather = weather != nullptr ? weather : "";
             sessionsList.push_back(rs);
         }
     }
@@ -138,8 +141,8 @@ std::vector<RaceSession> SessionDAO::getAllSessions()
 
 SessionDetails SessionDAO::getSessionDetails(int sessionId)
 {
-    const char* sql = "SELECT rs.session_id, rs.session_date, t.track_id, t.name, t.length_km, "
-                      "rs.weather_condition, rs.temperature_c "
+    const char* sql = "SELECT rs.session_id, rs.session_date, t.track_id, t.name, t.location, "
+                      "rs.session_type, rs.weather "
                       "FROM race_sessions rs "
                       "JOIN tracks t ON rs.track_id = t.track_id "
                       "WHERE rs.session_id = ?;";
@@ -153,13 +156,16 @@ SessionDetails SessionDAO::getSessionDetails(int sessionId)
         if(sqlite3_step(stmt) == SQLITE_ROW)
         {
             sd.sessionId = sqlite3_column_int(stmt, 0);
-            sd.sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            const char* sessionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            sd.sessionDate = sessionDate != nullptr ? sessionDate : "";
             sd.trackId = sqlite3_column_int(stmt, 2);
             sd.trackName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-            sd.trackLengthKm = sqlite3_column_double(stmt, 4);
-            const char* weather = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
-            sd.weatherCondition = weather != nullptr ? weather : "";
-            sd.temperatureC = sqlite3_column_double(stmt, 6);
+            const char* location = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+            sd.trackLocation = location != nullptr ? location : "";
+            const char* sessionType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+            sd.sessionType = sessionType != nullptr ? sessionType : "";
+            const char* weather = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6));
+            sd.weather = weather != nullptr ? weather : "";
             sqlite3_finalize(stmt);
             Logger::getInstance().log(INFO, "SESSION: getSessionDetails success ");
             return sd;

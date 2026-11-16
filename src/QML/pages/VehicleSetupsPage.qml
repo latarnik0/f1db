@@ -7,12 +7,12 @@ import F1DB
 Item {
     function fillSetup() {
         var s = vehicleController.selectedSetup
-        if (!s || s.vehicleId === undefined)
+        if (!s || s.runId === undefined)
             return
         frontWingField.text = String(s.frontWingAngle)
         rearWingField.text = String(s.rearWingAngle)
         brakeBiasField.text = String(s.brakeBias)
-        suspensionField.text = s.suspensionStiffness || ""
+        suspensionField.text = String(s.suspensionStiffness)
     }
 
     Connections {
@@ -41,8 +41,9 @@ Item {
             }
             AccentButton {
                 text: "Add vehicle"
+                enabled: appState.selectedDriverId > 0
                 onClicked: {
-                    if (vehicleController.addVehicle(chassisField.text))
+                    if (vehicleController.addVehicle(chassisField.text, appState.selectedDriverId))
                         chassisField.clear()
                 }
             }
@@ -109,9 +110,13 @@ Item {
 
                     Label {
                         color: Theme.textMuted
-                        text: appState.selectedVehicleId > 0
-                              ? appState.vehicleLabel
-                              : "Select a vehicle"
+                        text: {
+                            if (appState.selectedRunId <= 0)
+                                return "Select a run to edit setup"
+                            if (appState.selectedVehicleId <= 0)
+                                return "Select a vehicle for parts"
+                            return appState.vehicleLabel + " · run #" + appState.selectedRunId
+                        }
                     }
 
                     GridLayout {
@@ -126,19 +131,23 @@ Item {
                         Label { text: "Brake bias %"; color: Theme.textMuted }
                         Field { id: brakeBiasField; Layout.fillWidth: true }
                         Label { text: "Suspension"; color: Theme.textMuted }
-                        Field { id: suspensionField; Layout.fillWidth: true }
+                        Field {
+                            id: suspensionField
+                            Layout.fillWidth: true
+                            validator: DoubleValidator { notation: DoubleValidator.StandardNotation }
+                        }
                     }
 
                     AccentButton {
                         text: "Save setup"
-                        enabled: appState.selectedVehicleId > 0
+                        enabled: appState.selectedRunId > 0
                         Layout.alignment: Qt.AlignRight
-                        onClicked: vehicleController.setVehicleSetup(
-                                       appState.selectedVehicleId,
+                        onClicked: vehicleController.setRunSetup(
+                                       appState.selectedRunId,
                                        parseFloat(frontWingField.text),
                                        parseFloat(rearWingField.text),
                                        parseFloat(brakeBiasField.text),
-                                       suspensionField.text)
+                                       parseFloat(suspensionField.text))
                     }
 
                     RowLayout {
@@ -147,7 +156,7 @@ Item {
                             id: partBox
                             Layout.fillWidth: true
                             model: inventoryController.parts
-                            textRole: "partName"
+                            textRole: "name"
                             valueRole: "id"
                         }
                         AccentButton {
@@ -166,7 +175,7 @@ Item {
                         delegate: RowLayout {
                             width: ListView.view.width
                             spacing: 8
-                            Label { text: modelData.partName; color: Theme.text; Layout.fillWidth: true }
+                            Label { text: modelData.name; color: Theme.text; Layout.fillWidth: true }
                             Label { text: modelData.category; color: Theme.textMuted; Layout.preferredWidth: 90 }
                             Label { text: modelData.wearPercent + "%"; color: Theme.accent; Layout.preferredWidth: 48 }
                             AccentButton {

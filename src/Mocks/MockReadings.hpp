@@ -15,7 +15,7 @@ struct MockSensorReading
 {
     int runId;
     int sensorId;
-    std::string recordedAt;
+    double timestamp;
     double value;
 };
 

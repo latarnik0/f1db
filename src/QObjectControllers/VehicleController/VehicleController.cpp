@@ -36,7 +36,7 @@ void VehicleController::refresh()
     setStatusMessage(QStringLiteral("Loaded %1 vehicles").arg(m_vehicles.size()));
 }
 
-bool VehicleController::addVehicle(const QString& chassisCode)
+bool VehicleController::addVehicle(const QString& chassisCode, int driverId)
 {
     if(chassisCode.trimmed().isEmpty())
     {
@@ -44,7 +44,13 @@ bool VehicleController::addVehicle(const QString& chassisCode)
         return false;
     }
 
-    const int newId = m_queryHandler.addVehicle(chassisCode.trimmed().toStdString());
+    if(driverId <= 0)
+    {
+        setStatusMessage(QStringLiteral("Driver id must be > 0"));
+        return false;
+    }
+
+    const int newId = m_queryHandler.addVehicle(chassisCode.trimmed().toStdString(), driverId);
 
     if(newId < 0)
     {
@@ -68,56 +74,50 @@ bool VehicleController::removeVehicle(int vehicleId)
     return true;
 }
 
-bool VehicleController::setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const QString& suspensionStiffness)
+bool VehicleController::setRunSetup(int runId, double frontWingAngle, double rearWingAngle, double brakeBias, double suspensionStiffness)
 {
-    if(vehicleId <= 0)
+    if(runId <= 0)
     {
-        setStatusMessage(QStringLiteral("Vehicle id must be > 0"));
+        setStatusMessage(QStringLiteral("Run id must be > 0"));
         return false;
     }
 
-    if(suspensionStiffness.trimmed().isEmpty())
-    {
-        setStatusMessage(QStringLiteral("Suspension stiffness required"));
-        return false;
-    }
-
-    if(!m_queryHandler.setVehicleSetup(
-            vehicleId,
+    if(!m_queryHandler.setRunSetup(
+            runId,
             frontWingAngle,
             rearWingAngle,
             brakeBias,
-            suspensionStiffness.trimmed().toStdString()))
+            suspensionStiffness))
     {
-        setStatusMessage(QStringLiteral("Failed to set setup for vehicle #%1").arg(vehicleId));
+        setStatusMessage(QStringLiteral("Failed to set setup for run #%1").arg(runId));
         return false;
     }
 
-    loadSetup(vehicleId);
-    setStatusMessage(QStringLiteral("Updated setup for vehicle #%1").arg(vehicleId));
+    loadSetup(runId);
+    setStatusMessage(QStringLiteral("Updated setup for run #%1").arg(runId));
     return true;
 }
 
-void VehicleController::loadSetup(int vehicleId)
+void VehicleController::loadSetup(int runId)
 {
-    const VehicleSetup setup = m_queryHandler.getVehicleSetup(vehicleId);
+    const VehicleSetup setup = m_queryHandler.getRunSetup(runId);
 
-    if(setup.id <= 0 || setup.vehicleId <= 0)
+    if(setup.id <= 0 || setup.runId <= 0)
     {
         setSelectedSetup({});
-        setStatusMessage(QStringLiteral("Failed to load setup for vehicle #%1").arg(vehicleId));
+        setStatusMessage(QStringLiteral("Failed to load setup for run #%1").arg(runId));
         return;
     }
 
     setSelectedSetup(QVariantMap{
         {QStringLiteral("id"), setup.id},
-        {QStringLiteral("vehicleId"), setup.vehicleId},
+        {QStringLiteral("runId"), setup.runId},
         {QStringLiteral("frontWingAngle"), setup.frontWingAngle},
         {QStringLiteral("rearWingAngle"), setup.rearWingAngle},
         {QStringLiteral("brakeBias"), setup.brakeBias},
-        {QStringLiteral("suspensionStiffness"), QString::fromStdString(setup.suspensionStiffness)},
+        {QStringLiteral("suspensionStiffness"), setup.suspensionStiffness},
     });
-    setStatusMessage(QStringLiteral("Loaded setup for vehicle #%1").arg(setup.vehicleId));
+    setStatusMessage(QStringLiteral("Loaded setup for run #%1").arg(setup.runId));
 }
 
 bool VehicleController::installPart(int vehicleId, int partId)
@@ -194,6 +194,7 @@ void VehicleController::setVehicles(const std::vector<Vehicle>& vehicles)
         m_vehicles.append(QVariantMap{
             {QStringLiteral("id"), vehicle.id},
             {QStringLiteral("chassisCode"), QString::fromStdString(vehicle.chassisCode)},
+            {QStringLiteral("driverId"), vehicle.driverId},
         });
     }
     emit vehiclesChanged();
@@ -218,7 +219,7 @@ void VehicleController::setInstalledParts(const std::vector<InstalledPart>& part
     {
         m_installedParts.append(QVariantMap{
             {QStringLiteral("partId"), part.partId},
-            {QStringLiteral("partName"), QString::fromStdString(part.partName)},
+            {QStringLiteral("name"), QString::fromStdString(part.name)},
             {QStringLiteral("category"), QString::fromStdString(part.category)},
             {QStringLiteral("installedAt"), QString::fromStdString(part.installedAt)},
             {QStringLiteral("wearPercent"), part.wearPercent},

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -63,18 +62,6 @@ std::string lowerCopy(std::string text)
 bool nameHas(const std::string& lowerName, const char* token)
 {
     return lowerName.find(token) != std::string::npos;
-}
-
-std::string formatTimestamp(int sampleIndex)
-{
-    const int totalMs = sampleIndex * 10;
-    const int totalSec = totalMs / 1000;
-    const int ms = totalMs % 1000;
-    const int minutes = (totalSec / 60) % 60;
-    const int seconds = totalSec % 60;
-    char buffer[32];
-    std::snprintf(buffer, sizeof(buffer), "2026-10-10 12:%02d:%02d.%03d", minutes, seconds, ms);
-    return buffer;
 }
 
 void rangesForWaveform(SENSOR waveform, double& minVal, double& maxVal)
@@ -205,7 +192,7 @@ std::vector<MockSensorReading> MockReadings::generateMockReadings(int dbSensorId
         readings.push_back({
             1,
             dbSensorId,
-            formatTimestamp(i),
+            static_cast<double>(i) * 0.01,
             clampValue(value, minVal, maxVal)
         });
     }

@@ -108,7 +108,7 @@ Item {
                     model: vehicleController.installedParts
                     delegate: RowLayout {
                         width: ListView.view.width
-                        Label { text: modelData.partName; color: Theme.text; Layout.fillWidth: true }
+                        Label { text: modelData.name; color: Theme.text; Layout.fillWidth: true }
                         Label { text: modelData.category; color: Theme.textMuted; Layout.preferredWidth: 90 }
                         Label { text: modelData.wearPercent + "%"; color: Theme.accent; Layout.preferredWidth: 48 }
                     }

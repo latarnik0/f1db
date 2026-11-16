@@ -25,7 +25,7 @@ public:
     // =====================================================================
     //                             InventoryDAO
     // =====================================================================
-    int addPart(const std::string& partName, const std::string& category, double wearPercent);
+    int addPart(const std::string& name, const std::string& category, int stockQuantity, double wearPercent);
     bool updatePartWear(int partId, double wearPercent);
     bool deletePart(const int& partId);
     Part getPartById(const int& partId);
@@ -60,7 +60,7 @@ public:
     int addSensor(const std::string& name, const std::string& unit);
     std::vector<Sensor> getAllSensors();
     std::vector<TelemetryRun> getAllRuns();
-    int startTelemetryRun(int sessionId, int vehicleId, int driverId);
+    int startTelemetryRun(int sessionId, int vehicleId);
     bool setRunSectors(int runId, double sector1S, double sector2S, double sector3S, double lapTimeS);
     bool assignEngineerToRun(int runId, int engineerId);
     void clearReadingsForRun(int runId);
@@ -75,10 +75,10 @@ public:
     // =====================================================================
     //                             SessionDAO
     // =====================================================================
-    int addTrack(const std::string& name, double lengthKm);    
+    int addTrack(const std::string& name, const std::string& location);    
     std::vector<Track> getAllTracks();
     bool deleteTrack(int trackId);
-    int startSession(int trackId, const std::string& weatherCondition, double temperatureC);
+    int startSession(int trackId, const std::string& sessionType, const std::string& weather);
     std::vector<RaceSession> getAllSessions();
     SessionDetails getSessionDetails(int sessionId);
 
@@ -86,11 +86,11 @@ public:
     // =====================================================================
     //                             VehicleDAO
     // =====================================================================
-    int addVehicle(const std::string& chassisCode);
+    int addVehicle(const std::string& chassisCode, int driverId);
     bool deleteVehicle(int vehicleId);
     std::vector<Vehicle> getAllVehicles();
-    bool setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const std::string& suspensionStiffness);
-    VehicleSetup getVehicleSetup(int vehicleId);
+    bool setRunSetup(int runId, double frontWingAngle, double rearWingAngle, double brakeBias, double suspensionStiffness);
+    VehicleSetup getRunSetup(int runId);
     bool installPartOnVehicle(int vehicleId, int partId);
     bool removePartFromVehicle(int vehicleId, int partId);
     std::vector<InstalledPart> getVehicleWithInstalledParts(int vehicleId);

@@ -40,12 +40,10 @@ Item {
                 text: "Start run"
                 enabled: appState.selectedSessionId > 0
                          && appState.selectedVehicleId > 0
-                         && appState.selectedDriverId > 0
                 onClicked: {
                     var id = telemetryController.startTelemetryRun(
                                 appState.selectedSessionId,
-                                appState.selectedVehicleId,
-                                appState.selectedDriverId)
+                                appState.selectedVehicleId)
                     if (id > 0)
                         Window.window.selectRun(id)
                 }
@@ -118,7 +116,7 @@ Item {
                         text: {
                             var d = telemetryController.selectedRunDetails
                             if (!d || !d.runId)
-                                return "Select a run, or start one from the current session, vehicle and driver."
+                                return "Select a run, or start one from the current session and vehicle."
                             return d.sessionDate + " · " + d.chassisCode
                                    + " · " + d.driverFirstName + " " + d.driverLastName
                         }

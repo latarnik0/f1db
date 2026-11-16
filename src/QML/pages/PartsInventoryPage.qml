@@ -36,7 +36,13 @@ Item {
             Field {
                 id: categoryField
                 placeholderText: "Category"
-                Layout.preferredWidth: 160
+                Layout.preferredWidth: 140
+            }
+            Field {
+                id: stockField
+                placeholderText: "Stock"
+                Layout.preferredWidth: 70
+                validator: IntValidator { bottom: 0 }
             }
             Field {
                 id: wearField
@@ -48,9 +54,11 @@ Item {
                 text: "Add"
                 onClicked: {
                     var wear = wearField.text.trim() === "" ? 0 : parseFloat(wearField.text)
-                    if (inventoryController.addPart(nameField.text, categoryField.text, wear)) {
+                    var stock = stockField.text.trim() === "" ? 0 : parseInt(stockField.text)
+                    if (inventoryController.addPart(nameField.text, categoryField.text, stock, wear)) {
                         nameField.clear()
                         categoryField.clear()
+                        stockField.clear()
                         wearField.clear()
                     }
                 }
@@ -92,8 +100,9 @@ Item {
                     anchors.fill: parent
                     anchors.leftMargin: 8
                     anchors.rightMargin: 8
-                    Label { text: modelData.partName; color: Theme.text; Layout.fillWidth: true }
-                    Label { text: modelData.category; color: Theme.textMuted; Layout.preferredWidth: 140 }
+                    Label { text: modelData.name; color: Theme.text; Layout.fillWidth: true }
+                    Label { text: modelData.category; color: Theme.textMuted; Layout.preferredWidth: 120 }
+                    Label { text: "×" + modelData.stockQuantity; color: Theme.textMuted; Layout.preferredWidth: 48 }
                     Label { text: modelData.wearPercent + "%"; color: Theme.accent; Layout.preferredWidth: 56 }
                     AccentButton {
                         text: "Delete"

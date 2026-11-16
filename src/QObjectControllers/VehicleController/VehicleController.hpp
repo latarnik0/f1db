@@ -23,10 +23,10 @@ public:
     QString statusMessage() const;
 
     Q_INVOKABLE void refresh();
-    Q_INVOKABLE bool addVehicle(const QString& chassisCode);
+    Q_INVOKABLE bool addVehicle(const QString& chassisCode, int driverId);
     Q_INVOKABLE bool removeVehicle(int vehicleId);
-    Q_INVOKABLE bool setVehicleSetup(int vehicleId, double frontWingAngle, double rearWingAngle, double brakeBias, const QString& suspensionStiffness);
-    Q_INVOKABLE void loadSetup(int vehicleId);
+    Q_INVOKABLE bool setRunSetup(int runId, double frontWingAngle, double rearWingAngle, double brakeBias, double suspensionStiffness);
+    Q_INVOKABLE void loadSetup(int runId);
     Q_INVOKABLE bool installPart(int vehicleId, int partId);
     Q_INVOKABLE bool removePart(int vehicleId, int partId);
     Q_INVOKABLE void loadInstalledParts(int vehicleId);

@@ -18,7 +18,7 @@ public:
     QString statusMessage() const;
 
     Q_INVOKABLE void refresh();
-    Q_INVOKABLE bool addPart(const QString& partName, const QString& category, double wearPercent);
+    Q_INVOKABLE bool addPart(const QString& name, const QString& category, int stockQuantity, double wearPercent);
     Q_INVOKABLE bool updatePartWear(int partId, double wearPercent);
     Q_INVOKABLE bool removePart(int partId);
     Q_INVOKABLE void filterByCategory(const QString& category);

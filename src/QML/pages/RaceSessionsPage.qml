@@ -66,17 +66,16 @@ Item {
                             Layout.fillWidth: true
                         }
                         Field {
-                            id: trackLengthField
-                            placeholderText: "km"
-                            Layout.preferredWidth: 70
-                            validator: DoubleValidator { bottom: 0.01; notation: DoubleValidator.StandardNotation }
+                            id: trackLocationField
+                            placeholderText: "Location"
+                            Layout.preferredWidth: 140
                         }
                         AccentButton {
                             text: "Add"
                             onClicked: {
-                                if (sessionController.addTrack(trackNameField.text, parseFloat(trackLengthField.text))) {
+                                if (sessionController.addTrack(trackNameField.text, trackLocationField.text)) {
                                     trackNameField.clear()
-                                    trackLengthField.clear()
+                                    trackLocationField.clear()
                                 }
                             }
                         }
@@ -103,8 +102,9 @@ Item {
                                     elide: Text.ElideRight
                                 }
                                 Label {
-                                    text: modelData.lengthKm + " km"
+                                    text: modelData.location
                                     color: Theme.textMuted
+                                    elide: Text.ElideRight
                                 }
                                 AccentButton {
                                     text: "Delete"
@@ -134,23 +134,22 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         Field {
+                            id: sessionTypeField
+                            placeholderText: "Session type"
+                            Layout.preferredWidth: 120
+                        }
+                        Field {
                             id: weatherField
                             placeholderText: "Weather"
                             Layout.fillWidth: true
-                        }
-                        Field {
-                            id: temperatureField
-                            placeholderText: "°C"
-                            Layout.preferredWidth: 70
-                            validator: DoubleValidator { notation: DoubleValidator.StandardNotation }
                         }
                         AccentButton {
                             text: "Start session"
                             enabled: appState.selectedTrackId > 0
                             onClicked: sessionController.startSession(
                                            appState.selectedTrackId,
-                                           weatherField.text,
-                                           temperatureField.text.trim() === "" ? 0 : parseFloat(temperatureField.text))
+                                           sessionTypeField.text,
+                                           weatherField.text)
                         }
                     }
 
@@ -161,8 +160,8 @@ Item {
                         color: Theme.text
                         text: {
                             var d = sessionController.selectedSessionDetails
-                            return d.trackName + " · " + d.sessionDate
-                                   + " · " + d.weatherCondition + " " + d.temperatureC + "°C"
+                            return d.trackName + " · " + d.trackLocation + " · " + d.sessionDate
+                                   + " · " + d.sessionType + " · " + d.weather
                         }
                     }
 
@@ -193,7 +192,7 @@ Item {
                                     Layout.preferredWidth: 140
                                 }
                                 Label {
-                                    text: modelData.weatherCondition + " " + modelData.temperatureC + "°C"
+                                    text: modelData.sessionType + " · " + modelData.weather
                                     color: Theme.text
                                     Layout.fillWidth: true
                                     elide: Text.ElideRight

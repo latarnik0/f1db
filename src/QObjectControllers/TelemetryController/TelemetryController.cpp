@@ -75,15 +75,15 @@ bool TelemetryController::addSensor(const QString& name, const QString& unit)
     return true;
 }
 
-int TelemetryController::startTelemetryRun(int sessionId, int vehicleId, int driverId)
+int TelemetryController::startTelemetryRun(int sessionId, int vehicleId)
 {
-    if(sessionId <= 0 || vehicleId <= 0 || driverId <= 0)
+    if(sessionId <= 0 || vehicleId <= 0)
     {
-        setStatusMessage(QStringLiteral("Select a session, vehicle and driver first"));
+        setStatusMessage(QStringLiteral("Select a session and vehicle first"));
         return -1;
     }
 
-    const int newId = m_queryHandler.startTelemetryRun(sessionId, vehicleId, driverId);
+    const int newId = m_queryHandler.startTelemetryRun(sessionId, vehicleId);
 
     if(newId < 0)
     {
@@ -252,9 +252,10 @@ QVariantList TelemetryController::fetchRunTelemetry(int runId, int sensorId)
     for(const SensorReading& reading : readings)
     {
         result.append(QVariantMap{
+            {QStringLiteral("readingId"), reading.readingId},
             {QStringLiteral("runId"), reading.runId},
             {QStringLiteral("sensorId"), reading.sensorId},
-            {QStringLiteral("recordedAt"), QString::fromStdString(reading.recordedAt)},
+            {QStringLiteral("timestamp"), reading.timestamp},
             {QStringLiteral("value"), reading.value},
         });
     }
@@ -375,9 +376,10 @@ void TelemetryController::setTelemetryReadings(const std::vector<SensorReading>&
     for(const SensorReading& reading : readings)
     {
         m_telemetryReadings.append(QVariantMap{
+            {QStringLiteral("readingId"), reading.readingId},
             {QStringLiteral("runId"), reading.runId},
             {QStringLiteral("sensorId"), reading.sensorId},
-            {QStringLiteral("recordedAt"), QString::fromStdString(reading.recordedAt)},
+            {QStringLiteral("timestamp"), reading.timestamp},
             {QStringLiteral("value"), reading.value},
         });
     }

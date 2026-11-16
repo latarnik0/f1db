@@ -37,7 +37,7 @@ void SessionController::refresh()
                          .arg(m_sessions.size()));
 }
 
-bool SessionController::addTrack(const QString& name, double lengthKm)
+bool SessionController::addTrack(const QString& name, const QString& location)
 {
     if(name.trimmed().isEmpty())
     {
@@ -45,15 +45,15 @@ bool SessionController::addTrack(const QString& name, double lengthKm)
         return false;
     }
 
-    if(lengthKm <= 0)
+    if(location.trimmed().isEmpty())
     {
-        setStatusMessage(QStringLiteral("Length must be > 0"));
+        setStatusMessage(QStringLiteral("Location required"));
         return false;
     }
 
     const int newId = m_queryHandler.addTrack(
         name.trimmed().toStdString(),
-        lengthKm);
+        location.trimmed().toStdString());
 
     if(newId < 0)
     {
@@ -77,7 +77,7 @@ bool SessionController::removeTrack(int trackId)
     return true;
 }
 
-bool SessionController::startSession(int trackId, const QString& weatherCondition, double temperatureC)
+bool SessionController::startSession(int trackId, const QString& sessionType, const QString& weather)
 {
     if(trackId <= 0)
     {
@@ -87,8 +87,8 @@ bool SessionController::startSession(int trackId, const QString& weatherConditio
 
     const int newId = m_queryHandler.startSession(
         trackId,
-        weatherCondition.trimmed().toStdString(),
-        temperatureC);
+        sessionType.trimmed().toStdString(),
+        weather.trimmed().toStdString());
 
     if(newId < 0)
     {
@@ -116,9 +116,9 @@ void SessionController::loadSessionDetails(int sessionId)
         {QStringLiteral("sessionDate"), QString::fromStdString(details.sessionDate)},
         {QStringLiteral("trackId"), details.trackId},
         {QStringLiteral("trackName"), QString::fromStdString(details.trackName)},
-        {QStringLiteral("trackLengthKm"), details.trackLengthKm},
-        {QStringLiteral("weatherCondition"), QString::fromStdString(details.weatherCondition)},
-        {QStringLiteral("temperatureC"), details.temperatureC},
+        {QStringLiteral("trackLocation"), QString::fromStdString(details.trackLocation)},
+        {QStringLiteral("sessionType"), QString::fromStdString(details.sessionType)},
+        {QStringLiteral("weather"), QString::fromStdString(details.weather)},
     });
     setStatusMessage(QStringLiteral("Loaded session #%1 details").arg(details.sessionId));
 }
@@ -143,7 +143,7 @@ void SessionController::setTracks(const std::vector<Track>& tracks)
         m_tracks.append(QVariantMap{
             {QStringLiteral("id"), track.id},
             {QStringLiteral("name"), QString::fromStdString(track.name)},
-            {QStringLiteral("lengthKm"), track.lengthKm},
+            {QStringLiteral("location"), QString::fromStdString(track.location)},
         });
     }
     emit tracksChanged();
@@ -159,9 +159,9 @@ void SessionController::setSessions(const std::vector<RaceSession>& sessions)
         m_sessions.append(QVariantMap{
             {QStringLiteral("id"), session.id},
             {QStringLiteral("trackId"), session.trackId},
+            {QStringLiteral("sessionType"), QString::fromStdString(session.sessionType)},
             {QStringLiteral("sessionDate"), QString::fromStdString(session.sessionDate)},
-            {QStringLiteral("weatherCondition"), QString::fromStdString(session.weatherCondition)},
-            {QStringLiteral("temperatureC"), session.temperatureC},
+            {QStringLiteral("weather"), QString::fromStdString(session.weather)},
         });
     }
     emit sessionsChanged();

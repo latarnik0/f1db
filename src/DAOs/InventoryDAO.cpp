@@ -5,7 +5,7 @@
 InventoryDAO::InventoryDAO(sqlite3* db_connection) : db(db_connection) {}
 InventoryDAO::~InventoryDAO() {}
 
-int InventoryDAO::addPart(const std::string& partName, const std::string& category, double wearPercent)
+int InventoryDAO::addPart(const std::string& name, const std::string& category, int stockQuantity, double wearPercent)
 {
     if(wearPercent < 0.0 || wearPercent > 100.0)
     {
@@ -13,15 +13,22 @@ int InventoryDAO::addPart(const std::string& partName, const std::string& catego
         return -1;
     }
 
-    const char* sql = "INSERT INTO parts_inventory (part_name, category, wear_percent) VALUES (?, ?, ?);";
+    if(stockQuantity < 0)
+    {
+        Logger::getInstance().log(ERROR, "INVENTORY: stock_quantity must be >= 0");
+        return -1;
+    }
+
+    const char* sql = "INSERT INTO parts_inventory (name, category, stock_quantity, wear_percentage) VALUES (?, ?, ?, ?);";
     sqlite3_stmt* stmt;
     int newId = -1;
 
     if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
-        sqlite3_bind_text(stmt, 1, partName.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, category.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_double(stmt, 3, wearPercent);
+        sqlite3_bind_int(stmt, 3, stockQuantity);
+        sqlite3_bind_double(stmt, 4, wearPercent);
         if (sqlite3_step(stmt) == SQLITE_DONE)
         {
             newId = sqlite3_last_insert_rowid(db);
@@ -44,7 +51,7 @@ bool InventoryDAO::updatePartWear(int partId, double wearPercent)
         return false;
     }
 
-    const char* sql = "UPDATE parts_inventory SET wear_percent = ? WHERE part_id = ?;";
+    const char* sql = "UPDATE parts_inventory SET wear_percentage = ? WHERE part_id = ?;";
     sqlite3_stmt* stmt;
     bool result = false;
 
@@ -97,7 +104,7 @@ bool InventoryDAO::deletePart(const int& partId)
 
 Part InventoryDAO::getPartById(const int& partId)
 {
-    const char* sql = "SELECT part_id, part_name, category, wear_percent FROM parts_inventory WHERE part_id = ?;";
+    const char* sql = "SELECT part_id, name, category, stock_quantity, wear_percentage FROM parts_inventory WHERE part_id = ?;";
     sqlite3_stmt* stmt;
     Part p = {};
 
@@ -107,9 +114,10 @@ Part InventoryDAO::getPartById(const int& partId)
         if(sqlite3_step(stmt) == SQLITE_ROW)
         {
             p.id = sqlite3_column_int(stmt, 0);
-            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-            p.wearPercent = sqlite3_column_double(stmt, 3);
+            p.stockQuantity = sqlite3_column_int(stmt, 3);
+            p.wearPercent = sqlite3_column_double(stmt, 4);
             sqlite3_finalize(stmt);
             Logger::getInstance().log(INFO, "INVENTORY: Entry retrieved");
             return p;
@@ -125,7 +133,7 @@ Part InventoryDAO::getPartById(const int& partId)
 
 std::vector<Part> InventoryDAO::getPartByPartName(const std::string& partName)
 {
-    const char* sql = "SELECT part_id, part_name, category, wear_percent FROM parts_inventory WHERE part_name = ?;";
+    const char* sql = "SELECT part_id, name, category, stock_quantity, wear_percentage FROM parts_inventory WHERE name = ?;";
     sqlite3_stmt* stmt;
     std::vector<Part> partsList = {};
 
@@ -136,9 +144,10 @@ std::vector<Part> InventoryDAO::getPartByPartName(const std::string& partName)
         {
             Part p;
             p.id = sqlite3_column_int(stmt, 0);
-            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-            p.wearPercent = sqlite3_column_double(stmt, 3);
+            p.stockQuantity = sqlite3_column_int(stmt, 3);
+            p.wearPercent = sqlite3_column_double(stmt, 4);
             partsList.push_back(p);
         }
     }
@@ -152,7 +161,7 @@ std::vector<Part> InventoryDAO::getPartByPartName(const std::string& partName)
 
 std::vector<Part> InventoryDAO::getPartByCategory(const std::string& category)
 {
-    const char* sql = "SELECT part_id, part_name, category, wear_percent FROM parts_inventory WHERE category = ?;";
+    const char* sql = "SELECT part_id, name, category, stock_quantity, wear_percentage FROM parts_inventory WHERE category = ?;";
     sqlite3_stmt* stmt;
     std::vector<Part> partsList = {};
 
@@ -163,9 +172,10 @@ std::vector<Part> InventoryDAO::getPartByCategory(const std::string& category)
         {
             Part p;
             p.id = sqlite3_column_int(stmt, 0);
-            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-            p.wearPercent = sqlite3_column_double(stmt, 3);
+            p.stockQuantity = sqlite3_column_int(stmt, 3);
+            p.wearPercent = sqlite3_column_double(stmt, 4);
             partsList.push_back(p);
         }
     }
@@ -179,7 +189,7 @@ std::vector<Part> InventoryDAO::getPartByCategory(const std::string& category)
 
 std::vector<Part> InventoryDAO::getAllParts()
 {
-    const char* sql = "SELECT part_id, part_name, category, wear_percent FROM parts_inventory;";
+    const char* sql = "SELECT part_id, name, category, stock_quantity, wear_percentage FROM parts_inventory;";
     sqlite3_stmt* stmt;
     std::vector<Part> partsList;
 
@@ -189,9 +199,10 @@ std::vector<Part> InventoryDAO::getAllParts()
         {
             Part p;
             p.id = sqlite3_column_int(stmt, 0);
-            p.partName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            p.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             p.category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-            p.wearPercent = sqlite3_column_double(stmt, 3);
+            p.stockQuantity = sqlite3_column_int(stmt, 3);
+            p.wearPercent = sqlite3_column_double(stmt, 4);
             partsList.push_back(p);
         }
     }

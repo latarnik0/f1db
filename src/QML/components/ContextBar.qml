@@ -86,7 +86,9 @@ Rectangle {
         var session = findById(sessionController.sessions, id)
         applying = true
         appState.selectedSessionId = id
-        appState.sessionLabel = session ? (session.sessionDate + " · " + session.weatherCondition) : "—"
+        appState.sessionLabel = session
+                ? (session.sessionDate + " · " + session.sessionType + " · " + session.weather)
+                : "—"
         if (session) {
             appState.selectedTrackId = session.trackId
             var track = findById(sessionController.tracks, session.trackId)
@@ -115,10 +117,10 @@ Rectangle {
         appState.vehicleLabel = vehicle ? vehicle.chassisCode : "—"
         applying = false
         syncCombos()
-        if (id > 0) {
-            vehicleController.loadSetup(id)
+        if (id > 0)
             vehicleController.loadInstalledParts(id)
-        }
+        if (appState.selectedRunId > 0)
+            vehicleController.loadSetup(appState.selectedRunId)
     }
 
     function pickRun(id) {
@@ -135,7 +137,7 @@ Rectangle {
         var session = findById(sessionController.sessions, run.sessionId)
         if (session) {
             appState.selectedTrackId = session.trackId
-            appState.sessionLabel = session.sessionDate + " · " + session.weatherCondition
+            appState.sessionLabel = session.sessionDate + " · " + session.sessionType + " · " + session.weather
             var track = findById(sessionController.tracks, session.trackId)
             appState.trackLabel = track ? track.name : "—"
         }
@@ -143,10 +145,9 @@ Rectangle {
         syncCombos()
         telemetryController.loadRunDetails(run.id)
         telemetryController.loadEngineersForRun(run.id)
-        if (run.vehicleId > 0) {
-            vehicleController.loadSetup(run.vehicleId)
+        vehicleController.loadSetup(run.id)
+        if (run.vehicleId > 0)
             vehicleController.loadInstalledParts(run.vehicleId)
-        }
     }
 
     RowLayout {
@@ -173,7 +174,9 @@ Rectangle {
             valueRole: "id"
             textRole: "sessionDate"
             displayText: currentIndex >= 0 && root.sessionChoices[currentIndex]
-                         ? root.sessionChoices[currentIndex].sessionDate + " · " + root.sessionChoices[currentIndex].weatherCondition
+                         ? root.sessionChoices[currentIndex].sessionDate
+                           + " · " + root.sessionChoices[currentIndex].sessionType
+                           + " · " + root.sessionChoices[currentIndex].weather
                          : "—"
             onActivated: if (!root.applying) root.pickSession(currentValue || 0)
         }
