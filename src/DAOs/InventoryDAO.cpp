@@ -213,3 +213,38 @@ std::vector<Part> InventoryDAO::getAllParts()
     sqlite3_finalize(stmt);
     return partsList;
 }
+
+std::vector<CriticalWearPart> InventoryDAO::queryInstalledPartsWear(double minWear, const std::string& category)
+{
+    const char* sql =
+        "SELECT pi.name, pi.wear_percentage, v.chassis_code "
+        "FROM parts_inventory pi "
+        "JOIN vehicle_parts vp ON pi.part_id = vp.part_id "
+        "JOIN vehicles v ON vp.vehicle_id = v.vehicle_id "
+        "WHERE pi.wear_percentage > ? AND pi.category = ? "
+        "ORDER BY pi.wear_percentage DESC;";
+
+    sqlite3_stmt* stmt;
+    std::vector<CriticalWearPart> rows;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        sqlite3_bind_double(stmt, 1, minWear);
+        sqlite3_bind_text(stmt, 2, category.c_str(), -1, SQLITE_TRANSIENT);
+
+        while(sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            CriticalWearPart row;
+            row.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            row.wearPercentage = sqlite3_column_double(stmt, 1);
+            row.chassisCode = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            rows.push_back(row);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return rows;
+}

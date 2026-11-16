@@ -24,4 +24,6 @@ public:
     std::vector<Engineer> getEngineersForRun(int runId);
     std::vector<SensorReading> getRunTelemetry(int runId, int sensorId);
     SensorStatistics getSensorStatistics(int runId, int sensorId);
+    std::vector<TrackPerformanceRow> queryTrackPerformance(const std::string& trackName, double maxLapTime);
+    SensorWindowStatistics getSensorWindowStats(int runId, const std::string& sensorName, double t0, double t1);
 };

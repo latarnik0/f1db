@@ -39,6 +39,16 @@ QVariantMap TelemetryController::sensorStatistics() const
     return m_sensorStatistics;
 }
 
+QVariantList TelemetryController::trackPerformanceResults() const
+{
+    return m_trackPerformanceResults;
+}
+
+QVariantMap TelemetryController::sensorWindowStats() const
+{
+    return m_sensorWindowStats;
+}
+
 QString TelemetryController::statusMessage() const
 {
     return m_statusMessage;
@@ -287,6 +297,60 @@ void TelemetryController::loadSensorStatistics(int runId, int sensorId)
                          .arg(stats.sensorId));
 }
 
+void TelemetryController::queryTrackPerformance(const QString& trackName, double maxLapTime)
+{
+    if(trackName.trimmed().isEmpty())
+    {
+        setTrackPerformanceResults({});
+        setStatusMessage(QStringLiteral("Track name required"));
+        return;
+    }
+
+    const std::vector<TrackPerformanceRow> rows =
+        m_queryHandler.queryTrackPerformance(trackName.trimmed().toStdString(), maxLapTime);
+    setTrackPerformanceResults(rows);
+    setStatusMessage(QStringLiteral("Track performance: %1 row(s)").arg(m_trackPerformanceResults.size()));
+}
+
+void TelemetryController::getSensorWindowStats(int runId, const QString& sensorName, double t0, double t1)
+{
+    if(runId <= 0)
+    {
+        setSensorWindowStats({});
+        setStatusMessage(QStringLiteral("Run id must be > 0"));
+        return;
+    }
+
+    if(sensorName.trimmed().isEmpty())
+    {
+        setSensorWindowStats({});
+        setStatusMessage(QStringLiteral("Sensor name required"));
+        return;
+    }
+
+    const SensorWindowStatistics stats =
+        m_queryHandler.getSensorWindowStats(runId, sensorName.trimmed().toStdString(), t0, t1);
+
+    if(!stats.hasData)
+    {
+        setSensorWindowStats({});
+        setStatusMessage(QStringLiteral("No window stats for run #%1 sensor %2")
+                             .arg(runId)
+                             .arg(sensorName.trimmed()));
+        return;
+    }
+
+    setSensorWindowStats(QVariantMap{
+        {QStringLiteral("topSpeed"), stats.topSpeed},
+        {QStringLiteral("apexSpeed"), stats.apexSpeed},
+        {QStringLiteral("hasData"), true},
+    });
+    setStatusMessage(QStringLiteral("Window stats for run #%1: max %2 / min %3")
+                         .arg(runId)
+                         .arg(stats.topSpeed)
+                         .arg(stats.apexSpeed));
+}
+
 void TelemetryController::setStatusMessage(const QString& message)
 {
     if(m_statusMessage == message)
@@ -394,4 +458,31 @@ void TelemetryController::setSensorStatistics(const QVariantMap& statistics)
     }
     m_sensorStatistics = statistics;
     emit sensorStatisticsChanged();
+}
+
+void TelemetryController::setTrackPerformanceResults(const std::vector<TrackPerformanceRow>& rows)
+{
+    m_trackPerformanceResults.clear();
+    m_trackPerformanceResults.reserve(static_cast<int>(rows.size()));
+
+    for(const TrackPerformanceRow& row : rows)
+    {
+        m_trackPerformanceResults.append(QVariantMap{
+            {QStringLiteral("lastName"), QString::fromStdString(row.lastName)},
+            {QStringLiteral("trackName"), QString::fromStdString(row.trackName)},
+            {QStringLiteral("lapTime"), row.lapTime},
+            {QStringLiteral("wingAngleFront"), row.wingAngleFront},
+        });
+    }
+    emit trackPerformanceResultsChanged();
+}
+
+void TelemetryController::setSensorWindowStats(const QVariantMap& stats)
+{
+    if(m_sensorWindowStats == stats)
+    {
+        return;
+    }
+    m_sensorWindowStats = stats;
+    emit sensorWindowStatsChanged();
 }

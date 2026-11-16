@@ -15,6 +15,8 @@ class TelemetryController : public QObject
     Q_PROPERTY(QVariantList runEngineers READ runEngineers NOTIFY runEngineersChanged)
     Q_PROPERTY(QVariantList telemetryReadings READ telemetryReadings NOTIFY telemetryReadingsChanged)
     Q_PROPERTY(QVariantMap sensorStatistics READ sensorStatistics NOTIFY sensorStatisticsChanged)
+    Q_PROPERTY(QVariantList trackPerformanceResults READ trackPerformanceResults NOTIFY trackPerformanceResultsChanged)
+    Q_PROPERTY(QVariantMap sensorWindowStats READ sensorWindowStats NOTIFY sensorWindowStatsChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
 
 public:
@@ -26,6 +28,8 @@ public:
     QVariantList runEngineers() const;
     QVariantList telemetryReadings() const;
     QVariantMap sensorStatistics() const;
+    QVariantList trackPerformanceResults() const;
+    QVariantMap sensorWindowStats() const;
     QString statusMessage() const;
 
     Q_INVOKABLE void refresh();
@@ -39,6 +43,8 @@ public:
     Q_INVOKABLE void loadRunTelemetry(int runId, int sensorId);
     Q_INVOKABLE QVariantList fetchRunTelemetry(int runId, int sensorId);
     Q_INVOKABLE void loadSensorStatistics(int runId, int sensorId);
+    Q_INVOKABLE void queryTrackPerformance(const QString& trackName, double maxLapTime);
+    Q_INVOKABLE void getSensorWindowStats(int runId, const QString& sensorName, double t0, double t1);
 
 signals:
     void sensorsChanged();
@@ -47,6 +53,8 @@ signals:
     void runEngineersChanged();
     void telemetryReadingsChanged();
     void sensorStatisticsChanged();
+    void trackPerformanceResultsChanged();
+    void sensorWindowStatsChanged();
     void statusMessageChanged();
 
 private:
@@ -57,13 +65,17 @@ private:
     void setRunEngineers(const std::vector<Engineer>& engineers);
     void setTelemetryReadings(const std::vector<SensorReading>& readings);
     void setSensorStatistics(const QVariantMap& statistics);
+    void setTrackPerformanceResults(const std::vector<TrackPerformanceRow>& rows);
+    void setSensorWindowStats(const QVariantMap& stats);
 
     QueryHandler& m_queryHandler;
     QVariantList m_sensors;
     QVariantList m_runs;
     QVariantList m_runEngineers;
     QVariantList m_telemetryReadings;
+    QVariantList m_trackPerformanceResults;
     QVariantMap m_selectedRunDetails;
     QVariantMap m_sensorStatistics;
+    QVariantMap m_sensorWindowStats;
     QString m_statusMessage;
 };

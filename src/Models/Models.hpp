@@ -174,3 +174,25 @@ struct SensorStatistics
     double minValue;
     double avgValue;
 };
+
+struct TrackPerformanceRow
+{
+    std::string lastName;
+    std::string trackName;
+    double lapTime;
+    double wingAngleFront;
+};
+
+struct CriticalWearPart
+{
+    std::string name;
+    double wearPercentage;
+    std::string chassisCode;
+};
+
+struct SensorWindowStatistics
+{
+    double topSpeed;
+    double apexSpeed;
+    bool hasData;
+};

@@ -32,6 +32,7 @@ public:
     std::vector<Part> getPartByPartName(const std::string& partName);
     std::vector<Part> getPartByCategory(const std::string& category);
     std::vector<Part> getAllParts();
+    std::vector<CriticalWearPart> queryInstalledPartsWear(double minWear, const std::string& category);
 
     // =====================================================================
     //                             PersonnelDAO
@@ -70,6 +71,8 @@ public:
     std::vector<Engineer> getEngineersForRun(int runId);
     std::vector<SensorReading> getRunTelemetry(int runId, int sensorId);
     SensorStatistics getSensorStatistics(int runId, int sensorId);
+    std::vector<TrackPerformanceRow> queryTrackPerformance(const std::string& trackName, double maxLapTime);
+    SensorWindowStatistics getSensorWindowStats(int runId, const std::string& sensorName, double t0, double t1);
 
 
     // =====================================================================

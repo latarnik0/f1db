@@ -13,6 +13,11 @@ QVariantList InventoryController::parts() const
     return m_parts;
 }
 
+QVariantList InventoryController::criticalWearParts() const
+{
+    return m_criticalWearParts;
+}
+
 QString InventoryController::statusMessage() const
 {
     return m_statusMessage;
@@ -107,6 +112,21 @@ void InventoryController::filterByCategory(const QString& category)
     setStatusMessage(QStringLiteral("Filter: %1 (%2)").arg(category).arg(m_parts.size()));
 }
 
+void InventoryController::queryInstalledPartsWear(double minWear, const QString& category)
+{
+    if(category.trimmed().isEmpty())
+    {
+        setCriticalWearParts({});
+        setStatusMessage(QStringLiteral("Category required"));
+        return;
+    }
+
+    const std::vector<CriticalWearPart> rows =
+        m_queryHandler.queryInstalledPartsWear(minWear, category.trimmed().toStdString());
+    setCriticalWearParts(rows);
+    setStatusMessage(QStringLiteral("Critical wear: %1 part(s)").arg(m_criticalWearParts.size()));
+}
+
 void InventoryController::setStatusMessage(const QString& message)
 {
     if(m_statusMessage == message)
@@ -133,4 +153,20 @@ void InventoryController::setParts(const std::vector<Part>& parts)
         });
     }
     emit partsChanged();
+}
+
+void InventoryController::setCriticalWearParts(const std::vector<CriticalWearPart>& parts)
+{
+    m_criticalWearParts.clear();
+    m_criticalWearParts.reserve(static_cast<int>(parts.size()));
+
+    for(const CriticalWearPart& part : parts)
+    {
+        m_criticalWearParts.append(QVariantMap{
+            {QStringLiteral("name"), QString::fromStdString(part.name)},
+            {QStringLiteral("wearPercentage"), part.wearPercentage},
+            {QStringLiteral("chassisCode"), QString::fromStdString(part.chassisCode)},
+        });
+    }
+    emit criticalWearPartsChanged();
 }

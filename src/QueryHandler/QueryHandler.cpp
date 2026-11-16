@@ -53,6 +53,11 @@ std::vector<Part> QueryHandler::getAllParts()
     return inventory.getAllParts();
 }
 
+std::vector<CriticalWearPart> QueryHandler::queryInstalledPartsWear(double minWear, const std::string& category)
+{
+    return inventory.queryInstalledPartsWear(minWear, category);
+}
+
 
 // =====================================================================
 //                             PersonnelDAO
@@ -187,6 +192,16 @@ std::vector<SensorReading> QueryHandler::getRunTelemetry(int runId, int sensorId
 SensorStatistics QueryHandler::getSensorStatistics(int runId, int sensorId)
 {
     return telemetry.getSensorStatistics(runId, sensorId);
+}
+
+std::vector<TrackPerformanceRow> QueryHandler::queryTrackPerformance(const std::string& trackName, double maxLapTime)
+{
+    return telemetry.queryTrackPerformance(trackName, maxLapTime);
+}
+
+SensorWindowStatistics QueryHandler::getSensorWindowStats(int runId, const std::string& sensorName, double t0, double t1)
+{
+    return telemetry.getSensorWindowStats(runId, sensorName, t0, t1);
 }
 
 

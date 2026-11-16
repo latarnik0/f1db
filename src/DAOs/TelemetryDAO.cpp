@@ -367,3 +367,78 @@ SensorStatistics TelemetryDAO::getSensorStatistics(int runId, int sensorId)
     sqlite3_finalize(stmt);
     return stats;
 }
+
+std::vector<TrackPerformanceRow> TelemetryDAO::queryTrackPerformance(const std::string& trackName, double maxLapTime)
+{
+    const char* sql =
+        "SELECT d.last_name, t.name as track_name, tr.lap_time, vs.wing_angle_front "
+        "FROM telemetry_runs tr "
+        "JOIN race_sessions rs ON tr.session_id = rs.session_id "
+        "JOIN tracks t ON rs.track_id = t.track_id "
+        "JOIN vehicles v ON tr.vehicle_id = v.vehicle_id "
+        "JOIN drivers d ON v.driver_id = d.driver_id "
+        "JOIN vehicle_setups vs ON tr.run_id = vs.run_id "
+        "WHERE t.name = ? AND tr.lap_time < ? "
+        "ORDER BY tr.lap_time ASC;";
+
+    sqlite3_stmt* stmt;
+    std::vector<TrackPerformanceRow> rows;
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        sqlite3_bind_text(stmt, 1, trackName.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 2, maxLapTime);
+
+        while(sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            TrackPerformanceRow row;
+            row.lastName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            row.trackName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            row.lapTime = sqlite3_column_double(stmt, 2);
+            row.wingAngleFront = sqlite3_column_double(stmt, 3);
+            rows.push_back(row);
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return rows;
+}
+
+SensorWindowStatistics TelemetryDAO::getSensorWindowStats(int runId, const std::string& sensorName, double t0, double t1)
+{
+    const char* sql =
+        "SELECT MAX(sr.value) as top_speed, MIN(sr.value) as apex_speed "
+        "FROM sensor_readings sr "
+        "JOIN sensors s ON sr.sensor_id = s.sensor_id "
+        "JOIN telemetry_runs tr ON sr.run_id = tr.run_id "
+        "WHERE tr.run_id = ? "
+        "  AND s.name = ? "
+        "  AND sr.timestamp BETWEEN ? AND ?;";
+
+    sqlite3_stmt* stmt;
+    SensorWindowStatistics stats = {};
+
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        sqlite3_bind_int(stmt, 1, runId);
+        sqlite3_bind_text(stmt, 2, sensorName.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 3, t0);
+        sqlite3_bind_double(stmt, 4, t1);
+
+        if(sqlite3_step(stmt) == SQLITE_ROW && sqlite3_column_type(stmt, 0) != SQLITE_NULL)
+        {
+            stats.topSpeed = sqlite3_column_double(stmt, 0);
+            stats.apexSpeed = sqlite3_column_double(stmt, 1);
+            stats.hasData = true;
+        }
+    }
+    else
+    {
+        Logger::getInstance().log(ERROR, sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return stats;
+}
